@@ -2,11 +2,11 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: flex-start; /* Align to top for longer content */
     min-height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
-    padding-top: 20px;
+    padding-top: 20px; /* Add some padding at the top */
 }
 
 #game-container {
@@ -15,17 +15,20 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    position: relative;
-    max-width: 90vw;
+    position: relative; /* For overlay positioning */
+    max-width: 90vw; /* Prevent it from getting too wide */
 }
 
 #player-info {
     position: absolute;
     top: 10px;
     right: 20px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: #333;
+}
+#current-player-name-display {
+    color: #007bff; /* Highlight player name */
 }
 
 
@@ -36,6 +39,39 @@ body {
 .hidden {
     display: none !important;
 }
+
+/* Name Prompt Stage */
+#name-prompt-stage {
+    padding: 20px;
+    text-align: center;
+}
+#name-prompt-stage label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+#name-prompt-stage input[type="text"] {
+    padding: 8px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#name-prompt-stage button, #start-game-btn { /* Included start-game-btn for consistency */
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#name-prompt-stage button:hover, #start-game-btn:hover {
+    background-color: #218838;
+}
+
 
 /* Dice Stage */
 .dice-area {
@@ -56,9 +92,10 @@ body {
     font-weight: bold;
     margin: 0 10px;
     background-color: #fff;
-    transition: transform 0.1s ease-out;
+    transition: transform 0.1s ease-out; /* For animation */
 }
 
+/* Dice Rolling Animation */
 .dice.rolling {
     animation: roll 0.5s ease-out;
 }
@@ -72,27 +109,27 @@ body {
 }
 
 
-#roll-dice-btn, #drop-ball-btn, #play-again-btn, #quit-save-btn { /* Added quit-save-btn */
-    padding: 12px 25px;
-    font-size: 18px;
+#roll-dice-btn, #drop-ball-btn, #play-again-btn, #quit-game-btn {
+    padding: 12px 25px; /* Slightly larger padding */
+    font-size: 18px;    /* Slightly larger font */
     cursor: pointer;
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* Green for most actions */
     color: white;
     border: none;
     border-radius: 5px;
     margin-top: 15px;
     transition: background-color 0.3s ease;
 }
-#quit-save-btn {
+#quit-game-btn {
     background-color: #f44336; /* Red for quit */
-    margin-left: 10px; /* Space it from play again */
+    margin-left: 10px; /* Space it from play again if they are in the same container */
 }
 
 
 #roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover {
     background-color: #45a049;
 }
-#quit-save-btn:hover {
+#quit-game-btn:hover {
     background-color: #da190b;
 }
 
@@ -100,17 +137,18 @@ body {
 #roll-dice-btn:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    color: #666666;
 }
 
 
 #dice-sum-table-container {
     margin-top: 20px;
-    display: inline-block;
+    display: inline-block; /* To center the table */
 }
 
 #dice-sum-table {
     border-collapse: collapse;
-    margin: 0 auto;
+    margin: 0 auto; /* Center table */
 }
 
 #dice-sum-table th, #dice-sum-table td {
@@ -124,33 +162,37 @@ body {
 }
 
 #dice-sum-table tr.highlighted td {
-    background-color: #ffeb3b;
+    background-color: #ffeb3b; /* Yellow highlight */
     font-weight: bold;
 }
 
-#plinko-stage {
-    position: relative;
+
+/* Plinko Stage */
+#plinko-stage { /* Added for positioning context */
+    position: relative; /* Needed for absolute positioning of the button inside */
 }
 
 #plinkoCanvas {
     border: 1px solid #ccc;
-    background-color: white;
-    margin-top: 10px;
+    background-color: white; /* Ensure canvas background is white for drawn grid */
+    margin-top: 10px; /* Space above canvas */
 }
 
 #drop-ball-btn {
     position: absolute;
+    /* Centering the button over the canvas */
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* Precise centering */
     z-index: 10;
-    padding: 15px 30px;
-    font-size: 20px;
+    padding: 15px 30px; /* Make it bigger */
+    font-size: 20px;     /* Bigger font */
 }
+
 
 /* Game Over Overlay */
 .overlay {
-    position: fixed;
+    position: fixed; /* Cover the whole screen */
     top: 0;
     left: 0;
     width: 100%;
@@ -164,33 +206,58 @@ body {
 
 .overlay-content {
     background-color: white;
-    padding: 30px 40px;
+    padding: 20px 30px; /* Adjusted padding */
     border-radius: 8px;
     text-align: center;
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    max-width: 450px; /* Max width for overlay content */
+    width: 90%;      /* Responsive width */
 }
 
 .overlay-content h2 {
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 10px; 
     color: #333;
 }
 .overlay-content p {
-    margin-bottom: 10px; /* Consistent margin */
-    font-size: 18px;
+    margin-bottom: 10px; 
+    font-size: 16px; /* Adjusted font size */
 }
 
 #high-score-display {
-    margin-bottom: 20px; /* Space before buttons */
+    margin-top: 15px;
+    margin-bottom: 15px; 
     padding: 10px;
     border: 1px dashed #ccc;
     border-radius: 4px;
     background-color: #f9f9f9;
+    max-height: 180px; /* Limit height for scores */
+    overflow-y: auto;   
+    text-align: left;   
 }
-#high-score-display p {
-    margin: 5px 0;
+#high-score-display h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 18px;
+}
+#high-score-list {
+    list-style-position: inside; /* Numbers inside the list item box */
+    padding-left: 0; /* Remove default padding */
+    margin: 0;
+}
+#high-score-list li {
+    padding: 4px 0; /* Vertical padding */
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+#high-score-list li:last-child {
+    border-bottom: none;
 }
 
-.game-over-buttons { /* Container for buttons */
-    margin-top: 10px;
+.game-over-buttons { 
+    margin-top: 15px;
+    display: flex; /* For better button alignment if needed */
+    justify-content: center; /* Center buttons */
+    gap: 10px; /* Space between buttons */
 }

@@ -9,11 +9,20 @@
 <body>
     <div id="game-container">
         <div id="player-info">
-            Player Money: <span id="player-money-display">$6</span>
+            Current Player: <span id="current-player-name-display"></span> | Money: <span id="player-money-display">$6</span>
         </div>
 
-        <!-- Stage 1: Dice Roll -->
-        <div id="dice-stage" class="stage">
+        <!-- Initial Name Prompt Screen -->
+        <div id="name-prompt-stage" class="stage">
+            <h1>Welcome to Plinko!</h1>
+            <label for="player-name-input">Enter your name:</label>
+            <input type="text" id="player-name-input" maxlength="15">
+            <button id="start-game-btn">Start Game</button>
+        </div>
+
+
+        <!-- Stage 1: Dice Roll (Initially Hidden) -->
+        <div id="dice-stage" class="stage hidden">
             <h1>Roll the Dice!</h1>
             <div class="dice-area">
                 <div class="dice" id="dice1">1</div>
@@ -40,23 +49,24 @@
             </div>
         </div>
 
-        <!-- Stage 2 & 3: Plinko Board & Ball Drop -->
+        <!-- Stage 2 & 3: Plinko Board & Ball Drop (Initially Hidden)-->
         <div id="plinko-stage" class="stage hidden">
             <canvas id="plinkoCanvas"></canvas>
             <button id="drop-ball-btn" class="hidden">Drop Ball</button>
         </div>
 
-        <!-- Stage 4: Game Over Overlay -->
+        <!-- Stage 4: Game Over Overlay (Initially Hidden)-->
         <div id="game-over-overlay" class="overlay hidden">
             <div class="overlay-content">
-                <h2 id="prize-message">You won!</h2>
+                <h2 id="prize-message">Round Over!</h2>
                 <p id="final-money-message"></p>
-                <div id="high-score-display" class="hidden"> {/* Hidden by default */}
-                    <p><strong>High Score:</strong> <span id="high-score-value">None</span> by <span id="high-score-player">N/A</span></p>
+                <div id="high-score-display">
+                    <h3>Top Scores:</h3>
+                    <ol id="high-score-list"></ol> 
                 </div>
                 <div class="game-over-buttons">
-                    <button id="play-again-btn">Play Again</button>
-                    <button id="quit-save-btn">Quit & Save Score</button> {/* New Button */}
+                    <button id="play-again-btn">Play Next Round</button> 
+                    <button id="quit-game-btn">Quit Game & Save</button> 
                 </div>
             </div>
         </div>
