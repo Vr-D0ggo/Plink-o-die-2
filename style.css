@@ -1,0 +1,196 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+    padding-top: 20px;
+}
+
+#game-container {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    position: relative;
+    max-width: 90vw;
+}
+
+#player-info {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+.stage {
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Dice Stage */
+.dice-area {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.dice {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 10px;
+    background-color: #fff;
+    transition: transform 0.1s ease-out;
+}
+
+.dice.rolling {
+    animation: roll 0.5s ease-out;
+}
+
+@keyframes roll {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(90deg) scale(1.1); }
+    50% { transform: rotate(180deg) scale(1); }
+    75% { transform: rotate(270deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+
+#roll-dice-btn, #drop-ball-btn, #play-again-btn, #quit-save-btn { /* Added quit-save-btn */
+    padding: 12px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+#quit-save-btn {
+    background-color: #f44336; /* Red for quit */
+    margin-left: 10px; /* Space it from play again */
+}
+
+
+#roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover {
+    background-color: #45a049;
+}
+#quit-save-btn:hover {
+    background-color: #da190b;
+}
+
+
+#roll-dice-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+#dice-sum-table-container {
+    margin-top: 20px;
+    display: inline-block;
+}
+
+#dice-sum-table {
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+#dice-sum-table th, #dice-sum-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+#dice-sum-table th {
+    background-color: #f2f2f2;
+}
+
+#dice-sum-table tr.highlighted td {
+    background-color: #ffeb3b;
+    font-weight: bold;
+}
+
+#plinko-stage {
+    position: relative;
+}
+
+#plinkoCanvas {
+    border: 1px solid #ccc;
+    background-color: white;
+    margin-top: 10px;
+}
+
+#drop-ball-btn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    padding: 15px 30px;
+    font-size: 20px;
+}
+
+/* Game Over Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.overlay-content {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+.overlay-content h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+.overlay-content p {
+    margin-bottom: 10px; /* Consistent margin */
+    font-size: 18px;
+}
+
+#high-score-display {
+    margin-bottom: 20px; /* Space before buttons */
+    padding: 10px;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+#high-score-display p {
+    margin: 5px 0;
+}
+
+.game-over-buttons { /* Container for buttons */
+    margin-top: 10px;
+}

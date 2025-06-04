@@ -3,17 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plinko Board</title>
-    <style>
-        body { margin: 20px; font-family: sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: #f0f0f0;}
-        canvas { border: 1px solid #ccc; background-color: white; }
-        h1 { margin-bottom: 10px; }
-    </style>
+    <title>Plinko Dice Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Plinko Board</h1>
-    <canvas id="plinkoCanvas"></canvas>
+    <div id="game-container">
+        <div id="player-info">
+            Player Money: <span id="player-money-display">$6</span>
+        </div>
 
+        <!-- Stage 1: Dice Roll -->
+        <div id="dice-stage" class="stage">
+            <h1>Roll the Dice!</h1>
+            <div class="dice-area">
+                <div class="dice" id="dice1">1</div>
+                <div class="dice" id="dice2">1</div>
+            </div>
+            <button id="roll-dice-btn">Roll Dice (Cost: $3)</button>
+            <div id="dice-sum-table-container">
+                <h2>Dice Sum to Slot</h2>
+                <table id="dice-sum-table">
+                    <thead>
+                        <tr>
+                            <th>Sum of Dice</th>
+                            <th>Slot #</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-sum-key="2,3"><td>2 or 3</td><td>Slot 1</td></tr>
+                        <tr data-sum-key="4,5"><td>4 or 5</td><td>Slot 2</td></tr>
+                        <tr data-sum-key="6,7,8"><td>6, 7, or 8</td><td>Slot 3</td></tr>
+                        <tr data-sum-key="9,10"><td>9 or 10</td><td>Slot 4</td></tr>
+                        <tr data-sum-key="11,12"><td>11 or 12</td><td>Slot 5</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stage 2 & 3: Plinko Board & Ball Drop -->
+        <div id="plinko-stage" class="stage hidden">
+            <canvas id="plinkoCanvas"></canvas>
+            <button id="drop-ball-btn" class="hidden">Drop Ball</button>
+        </div>
+
+        <!-- Stage 4: Game Over Overlay -->
+        <div id="game-over-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <h2 id="prize-message">You won!</h2>
+                <p id="final-money-message"></p>
+                <div id="high-score-display" class="hidden"> {/* Hidden by default */}
+                    <p><strong>High Score:</strong> <span id="high-score-value">None</span> by <span id="high-score-player">N/A</span></p>
+                </div>
+                <div class="game-over-buttons">
+                    <button id="play-again-btn">Play Again</button>
+                    <button id="quit-save-btn">Quit & Save Score</button> {/* New Button */}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="plinko-board.js"></script>
+    <script src="physics.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

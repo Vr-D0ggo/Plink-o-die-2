@@ -1,183 +1,260 @@
-window.onload = function() {
-    const canvas = document.getElementById('plinkoCanvas');
-    const ctx = canvas.getContext('2d');
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const playerMoneyDisplayEl = document.getElementById('player-money-display');
+    const diceStageEl = document.getElementById('dice-stage');
+    const plinkoStageEl = document.getElementById('plinko-stage');
+    const gameOverOverlayEl = document.getElementById('game-over-overlay');
 
-    // --- Configuration ---
-    const BOX_SIZE = 30; // Pixel size of one grid box (Increased from 25 for a bigger board)
-    const BOARD_COLS = 22; // Board is 22 boxes wide
-    const BOARD_ROWS = 11; // Board is 11 boxes tall
+    const dice1El = document.getElementById('dice1');
+    const dice2El = document.getElementById('dice2');
+    const rollDiceBtn = document.getElementById('roll-dice-btn');
+    const diceSumTableBody = document.getElementById('dice-sum-table').querySelector('tbody');
 
-    const PEG_WIDTH_BOXES = 1;
-    const PEG_HEIGHT_BOXES = 1.25;
-    const RA_PEG_WIDTH_BOXES = 1.75; // Right-angle triangle width
-    const RA_PEG_HEIGHT_BOXES = 1.75; // Right-angle triangle height
+    const dropBallBtn = document.getElementById('drop-ball-btn');
+    const prizeMessageEl = document.getElementById('prize-message');
+    const finalMoneyMessageEl = document.getElementById('final-money-message');
+    const highScoreDisplayEl = document.getElementById('high-score-display');
+    const highScoreValueEl = document.getElementById('high-score-value');
+    const highScorePlayerEl = document.getElementById('high-score-player');
+    const playAgainBtn = document.getElementById('play-again-btn');
+    const quitSaveBtn = document.getElementById('quit-save-btn'); // New button
 
-    const PEG_COLOR_FILL = '#888888';
-    const PEG_COLOR_STROKE = '#333333';
-    const GRID_COLOR = '#dddddd';
-    const SLOT_LINE_COLOR = '#555555';
-    const TEXT_COLOR = '#000000';
-    const TEXT_FONT = 'bold 16px Arial'; // Adjusted font size for new BOX_SIZE
+    // Game State
+    let playerMoney = 6; // Initial player money for a new session
+    const initialPlayerMoney = 6; // To reset for new game
+    const rollCost = 3;
+    let selectedSlotNumber = 0;
+    let diceRollAnimationInterval;
+    const highScoreKey = 'plinkoDiceHighScore'; // localStorage key
 
-    // Calculate canvas dimensions
-    canvas.width = BOARD_COLS * BOX_SIZE;
-    canvas.height = BOARD_ROWS * BOX_SIZE;
-
-    // --- Helper Functions ---
-    function drawGrid() {
-        ctx.strokeStyle = GRID_COLOR;
-        ctx.lineWidth = 1;
-
-        for (let i = 0; i <= BOARD_COLS; i++) {
-            ctx.beginPath();
-            ctx.moveTo(i * BOX_SIZE, 0);
-            ctx.lineTo(i * BOX_SIZE, canvas.height);
-            ctx.stroke();
-        }
-        for (let i = 0; i <= BOARD_ROWS; i++) {
-            ctx.beginPath();
-            ctx.moveTo(0, i * BOX_SIZE);
-            ctx.lineTo(canvas.width, i * BOX_SIZE);
-            ctx.stroke();
+    function updateMoneyDisplay() {
+        playerMoneyDisplayEl.textContent = `$${playerMoney}`;
+        if (playerMoney < rollCost) {
+            rollDiceBtn.disabled = true;
+            rollDiceBtn.textContent = "Not enough money!";
+        } else {
+            rollDiceBtn.disabled = false;
+            rollDiceBtn.textContent = `Roll Dice (Cost: $${rollCost})`;
         }
     }
 
-    function drawTriangle(centerXInBoxes, baseYInBoxes, widthInBoxes, heightInBoxes) {
-        const pixelCenterX = centerXInBoxes * BOX_SIZE;
-        const pixelBaseY = baseYInBoxes * BOX_SIZE;
-        const pixelWidth = widthInBoxes * BOX_SIZE;
-        const pixelHeight = heightInBoxes * BOX_SIZE;
-
-        ctx.beginPath();
-        ctx.moveTo(pixelCenterX, pixelBaseY - pixelHeight);
-        ctx.lineTo(pixelCenterX - pixelWidth / 2, pixelBaseY);
-        ctx.lineTo(pixelCenterX + pixelWidth / 2, pixelBaseY);
-        ctx.closePath();
-
-        ctx.fillStyle = PEG_COLOR_FILL;
-        ctx.fill();
-        ctx.strokeStyle = PEG_COLOR_STROKE;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+    function loadAndDisplayHighScore() {
+        const storedScore = localStorage.getItem(highScoreKey);
+        if (storedScore) {
+            const { name, score } = JSON.parse(storedScore);
+            highScoreValueEl.textContent = `$${score}`;
+            highScorePlayerEl.textContent = name;
+            highScoreDisplayEl.classList.remove('hidden');
+        } else {
+            highScoreDisplayEl.classList.add('hidden'); // Hide if no score yet
+        }
     }
 
-    function drawRightAngleTriangle(verticalSideXInBoxes, baseYInBoxes, widthInBoxes, heightInBoxes, type) {
-        const pixelVerticalSideX = verticalSideXInBoxes * BOX_SIZE;
-        const pixelBaseY = baseYInBoxes * BOX_SIZE;
-        const pixelWidth = widthInBoxes * BOX_SIZE;
-        const pixelHeight = heightInBoxes * BOX_SIZE;
+    function saveScore(playerName, currentMoney) {
+        const existingScoreData = localStorage.getItem(highScoreKey);
+        let newHighScore = true;
 
-        ctx.beginPath();
-        if (type === 'rightFacingApex') {
-            ctx.moveTo(pixelVerticalSideX + pixelWidth, pixelBaseY - pixelHeight);
-            ctx.lineTo(pixelVerticalSideX, pixelBaseY);
-            ctx.lineTo(pixelVerticalSideX, pixelBaseY - pixelHeight);
-        } else { // 'leftFacingApex'
-            ctx.moveTo(pixelVerticalSideX, pixelBaseY - pixelHeight);
-            ctx.lineTo(pixelVerticalSideX + pixelWidth, pixelBaseY - pixelHeight);
-            ctx.lineTo(pixelVerticalSideX + pixelWidth, pixelBaseY);
+        if (existingScoreData) {
+            const { score: existingHighScore } = JSON.parse(existingScoreData);
+            if (currentMoney <= existingHighScore) {
+                newHighScore = false; // Only save if it's a new high score
+            }
         }
-        ctx.closePath();
+
+        if (newHighScore) {
+            localStorage.setItem(highScoreKey, JSON.stringify({ name: playerName, score: currentMoney }));
+            loadAndDisplayHighScore(); // Refresh display
+            alert(`New high score of $${currentMoney} saved for ${playerName}!`);
+        } else if (!newHighScore && existingScoreData) {
+             alert(`Your score of $${currentMoney} was not higher than the current high score.`);
+        } else {
+             localStorage.setItem(highScoreKey, JSON.stringify({ name: playerName, score: currentMoney }));
+             loadAndDisplayHighScore(); // Refresh display
+             alert(`Score of $${currentMoney} saved for ${playerName}!`);
+        }
+    }
+
+    function handleQuitAndSave() {
+        gameOverOverlayEl.classList.add('hidden'); // Hide overlay temporarily
+        let playerName = prompt("Enter your name to save your score (final money will be your score):", "Player");
+        if (playerName && playerName.trim() !== "") {
+            saveScore(playerName.trim(), playerMoney);
+        } else if (playerName === "") {
+             alert("No name entered. Score not saved.");
+        } else { // User cancelled prompt
+            alert("Score not saved.");
+        }
+        // After saving (or not), show a final message or just end.
+        // For now, we'll just effectively end the game session.
+        // To fully "quit", you might hide game-container or show a thank you message.
+        diceStageEl.classList.add('hidden'); // Hide main game stages
+        plinkoStageEl.classList.add('hidden');
+        // Optionally display a "Thanks for playing!" message
+        alert("Thanks for playing! Refresh to start a new session.");
+        // Or disable buttons, etc.
+        rollDiceBtn.disabled = true;
+        rollDiceBtn.textContent = "Game Over";
+    }
+
+
+    function initGame() {
+        playerMoney = initialPlayerMoney; // Reset money for a new game session
+        diceStageEl.classList.remove('hidden');
+        plinkoStageEl.classList.add('hidden');
+        gameOverOverlayEl.classList.add('hidden');
+        dropBallBtn.classList.add('hidden');
+
+        dice1El.textContent = '1';
+        dice2El.textContent = '1';
+        dice1El.classList.remove('rolling');
+        dice2El.classList.remove('rolling');
+        clearTableHighlights();
+        updateMoneyDisplay();
+
+        if (canvas) {
+            initializePlinkoCanvas();
+        }
+        loadAndDisplayHighScore(); // Load high score when game starts (or game over screen shows)
+    }
+
+    function startDiceRollAnimation() {
+        let animationTicks = 0;
+        const maxTicks = 10;
+        dice1El.classList.add('rolling');
+        dice2El.classList.add('rolling');
+        diceRollAnimationInterval = setInterval(() => {
+            dice1El.textContent = Math.floor(Math.random() * 6) + 1;
+            dice2El.textContent = Math.floor(Math.random() * 6) + 1;
+            animationTicks++;
+            if (animationTicks >= maxTicks) {
+                stopDiceRollAnimationAndProceed();
+            }
+        }, 100);
+    }
+
+    function stopDiceRollAnimationAndProceed() {
+        clearInterval(diceRollAnimationInterval);
+        dice1El.classList.remove('rolling');
+        dice2El.classList.remove('rolling');
+        const val1 = Math.floor(Math.random() * 6) + 1;
+        const val2 = Math.floor(Math.random() * 6) + 1;
+        const sum = val1 + val2;
+        dice1El.textContent = val1;
+        dice2El.textContent = val2;
+        selectedSlotNumber = getSlotFromSum(sum);
+        highlightTableRow(sum);
+        setTimeout(() => {
+            transitionToPlinko();
+        }, 2000);
+    }
+
+    function rollDice() {
+        if (playerMoney < rollCost) {
+            // Automatically trigger quit/save if not enough money
+            showGameOver(true); // Pass true to indicate "out of money"
+            return;
+        }
+        playerMoney -= rollCost;
+        updateMoneyDisplay();
+        rollDiceBtn.disabled = true;
+        startDiceRollAnimation();
+    }
+
+    function getSlotFromSum(sum) {
+        if (sum <= 3) return 1;
+        if (sum <= 5) return 2;
+        if (sum <= 8) return 3;
+        if (sum <= 10) return 4;
+        if (sum <= 12) return 5;
+        return 3;
+    }
+
+    function clearTableHighlights() {
+        diceSumTableBody.querySelectorAll('tr').forEach(row => {
+            row.classList.remove('highlighted');
+        });
+    }
+
+    function highlightTableRow(sum) {
+        clearTableHighlights();
+        const rows = diceSumTableBody.querySelectorAll('tr');
+        rows.forEach(row => {
+            const sumKey = row.dataset.sumKey.split(',');
+            if (sumKey.includes(String(sum))) {
+                row.classList.add('highlighted');
+            }
+        });
+    }
+
+    function transitionToPlinko() {
+        diceStageEl.classList.add('hidden');
+        plinkoStageEl.classList.remove('hidden');
+        if (!canvas) initializePlinkoCanvas();
+        drawFullPlinkoBoard();
+        resetBall(selectedSlotNumber);
+        drawBall(ball);
+        dropBallBtn.classList.remove('hidden');
+    }
+    
+    function onDropBallClicked() {
+        dropBallBtn.classList.add('hidden');
+        startBallAnimation();
+    }
+
+    function showGameOver(isOutOfMoney = false) {
+        loadAndDisplayHighScore(); // Make sure high score is current
         
-        ctx.fillStyle = PEG_COLOR_FILL;
-        ctx.fill();
-        ctx.strokeStyle = PEG_COLOR_STROKE;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-
-    // --- Drawing Functions ---
-    function drawTopSlotLabels() {
-        ctx.fillStyle = TEXT_COLOR;
-        ctx.font = TEXT_FONT;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        const labelY = 0.5 * BOX_SIZE;
-        const slotLabels = ["slot1", "slot2", "slot3", "slot4", "slot5"];
-        const pegXCentersRow1 = [3, 7, 11, 15, 19];
-
-        slotLabels.forEach((label, index) => {
-            ctx.fillText(label, pegXCentersRow1[index] * BOX_SIZE, labelY);
-        });
-    }
-
-    function drawPegs() {
-        // Peg Row 1 (5 pegs)
-        const baseYRow1 = (1 + PEG_HEIGHT_BOXES); 
-        const pegXCentersRow1 = [3, 7, 11, 15, 19];
-        pegXCentersRow1.forEach(centerX => {
-            drawTriangle(centerX, baseYRow1, PEG_WIDTH_BOXES, PEG_HEIGHT_BOXES);
-        });
-
-        // Peg Row 2 (10 pegs)
-        const topYRow2 = baseYRow1 + 0.5;
-        const baseYRow2 = topYRow2 + PEG_HEIGHT_BOXES;
-        const pegXCentersRow2 = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
-        pegXCentersRow2.forEach(centerX => {
-            drawTriangle(centerX, baseYRow2, PEG_WIDTH_BOXES, PEG_HEIGHT_BOXES);
-        });
-        
-        // Peg Row 3 (11 pegs: 2 right-angle, 9 standard)
-        const topYRow3_standard = baseYRow2 + 0.5;
-        const baseYRow3_standard = topYRow3_standard + PEG_HEIGHT_BOXES;
-        const topYRow3_RA = baseYRow2 + 0.5; // Align tops for all pegs in this row
-        const baseYRow3_RA = topYRow3_RA + RA_PEG_HEIGHT_BOXES; // Base for taller RA pegs
-
-        drawRightAngleTriangle(0, baseYRow3_RA, RA_PEG_WIDTH_BOXES, RA_PEG_HEIGHT_BOXES, 'rightFacingApex');
-
-        const pegXCentersRow3_standard = [3, 5, 7, 9, 11, 13, 15, 17, 19];
-         pegXCentersRow3_standard.forEach(centerX => {
-            // Standard pegs in row 3 have their tops aligned with RA pegs, so their base is also baseYRow3_standard
-            // but since we calculated baseYRow3_RA for the tallest, we use that for return.
-            // Standard pegs are shorter, so their individual base Y would be baseYRow3_standard if they were the only ones.
-            // For drawing, we use their specific height.
-            drawTriangle(centerX, baseYRow3_standard, PEG_WIDTH_BOXES, PEG_HEIGHT_BOXES);
-        });
-
-        drawRightAngleTriangle(BOARD_COLS - RA_PEG_WIDTH_BOXES, baseYRow3_RA, RA_PEG_WIDTH_BOXES, RA_PEG_HEIGHT_BOXES, 'leftFacingApex');
-        
-        return baseYRow3_RA; // Return the Y-coordinate (in box units) of the base of the tallest pegs in row 3
-    }
-
-    // Modified to accept the lowest peg base Y-coordinate
-    function drawBottomSlotsAndPrizes(lowestPegBaseYInBoxes) {
-        ctx.strokeStyle = SLOT_LINE_COLOR;
-        ctx.lineWidth = 2;
-
-        const prizeSlotTopY = (lowestPegBaseYInBoxes + 0.5) * BOX_SIZE; // 0.5 box gap
-
-        for (let i = 0; i <= BOARD_COLS; i += 2) {
-            if (i === 0 && BOARD_COLS > 0) continue; 
-            if (i === BOARD_COLS && BOARD_COLS > 0) continue; 
-            
-            ctx.beginPath();
-            ctx.moveTo(i * BOX_SIZE, prizeSlotTopY);
-            ctx.lineTo(i * BOX_SIZE, canvas.height);
-            ctx.stroke();
+        if (isOutOfMoney) {
+            prizeMessageEl.textContent = "Out of Money!";
+            finalMoneyMessageEl.textContent = `Your final amount is $${playerMoney}.`;
+            playAgainBtn.classList.add('hidden'); // Hide play again if no money
+        } else {
+             playAgainBtn.classList.remove('hidden');
         }
-        ctx.beginPath();
-        ctx.moveTo(0, prizeSlotTopY);
-        ctx.lineTo(canvas.width, prizeSlotTopY);
-        ctx.stroke();
-
-        const prizeValues = ["+20$", "+6$", "+3$", "+1$", "+0$", "+2$", "+0$", "+1$", "+3$", "+9$", "+4$"];
-        ctx.fillStyle = TEXT_COLOR;
-        ctx.font = TEXT_FONT;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        const prizeLabelY = ((BOARD_ROWS - 1) + 0.5) * BOX_SIZE;
-
-        for (let i = 0; i < prizeValues.length; i++) {
-            const slotCenterX = (i * 2 + 1) * BOX_SIZE;
-            ctx.fillText(prizeValues[i], slotCenterX, prizeLabelY);
-        }
+        gameOverOverlayEl.classList.remove('hidden');
     }
 
-    // --- Main Drawing ---
-    drawGrid();
-    drawTopSlotLabels();
-    const lowestPegY = drawPegs(); // Call drawPegs and store the returned Y-coordinate
-    drawBottomSlotsAndPrizes(lowestPegY); // Pass the Y-coordinate to drawBottomSlotsAndPrizes
-};
+    window.handleBallLanded = function(prizeString) {
+        let prizeAmount = 0;
+        if (prizeString !== "Lost!") {
+            const match = prizeString.match(/([+-])?(\d+)/);
+            if (match) {
+                prizeAmount = parseInt(match[2]);
+                if (match[1] === '-') {
+                    prizeAmount *= -1;
+                }
+            }
+        }
+        playerMoney += prizeAmount;
+        // Don't call updateMoneyDisplay() here, as it might re-enable rollDiceBtn prematurely
+        prizeMessageEl.textContent = `You won ${prizeString}!`;
+        finalMoneyMessageEl.textContent = `Your new total is $${playerMoney}.`;
+        
+        showGameOver(playerMoney < rollCost); // Show game over, check if out of money for next round
+    }
+
+    // Event Listeners
+    rollDiceBtn.addEventListener('click', rollDice);
+    dropBallBtn.addEventListener('click', onDropBallClicked);
+    
+    playAgainBtn.addEventListener('click', () => {
+        if (playerMoney < rollCost) {
+            alert("You don't have enough money to play again. Please save your score or refresh for a new session.");
+            // Optionally directly call handleQuitAndSave() here
+            // handleQuitAndSave();
+            return;
+        }
+        gameOverOverlayEl.classList.add('hidden');
+        // initGame() will reset playerMoney to initialPlayerMoney.
+        // If you want the player to continue with their current winnings,
+        // you'd need a different reset logic. For now, new game = fresh start.
+        initGame(); // This will reset playerMoney to initialPlayerMoney for a "new session"
+                    // If you want to continue with current money, just hide overlay and update UI.
+                    // For this example, Play Again means a full reset of money to starting amount.
+    });
+
+    quitSaveBtn.addEventListener('click', handleQuitAndSave);
+
+    // Initialize
+    initGame();
+});
