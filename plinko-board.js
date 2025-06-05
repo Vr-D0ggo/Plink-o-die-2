@@ -1,35 +1,43 @@
 // --- Plinko Board Configuration & Drawing ---
 const PLINKO_CONFIG = {
-    BOX_SIZE: 25, // Slightly smaller to fit better with other elements initially
+    BOX_SIZE: 25,
     BOARD_COLS: 22,
     BOARD_ROWS: 11,
-    PEG_WIDTH_BOXES: 1,
-    PEG_HEIGHT_BOXES: 1.25,
-    RA_PEG_WIDTH_BOXES: 1.75,
-    RA_PEG_HEIGHT_BOXES: 1.75,
+    PEG_WIDTH_BOXES: 1,         // Width of standard triangular pegs AND the current "base width" of steeper side pegs
+    PEG_HEIGHT_BOXES: 1.25,     // Height of standard triangular pegs
+    RA_PEG_WIDTH_BOXES: 1.75,   // Original/Default width for right-angle pegs (not used for these specific side pegs now)
+    RA_PEG_HEIGHT_BOXES: 1.75,  // New height for the steeper side pegs
     PEG_COLOR_FILL: '#888888',
     PEG_COLOR_STROKE: '#333333',
     GRID_COLOR: '#dddddd',
     SLOT_LINE_COLOR: '#555555',
     TEXT_COLOR: '#000000',
     TEXT_FONT: 'bold 14px Arial',
-    BALL_RADIUS_BOXES: 0.35, // Ball radius in box units
+    BALL_RADIUS_BOXES: 0.35,
     BALL_COLOR: 'red',
 };
 
 let canvas, ctx;
-let pegs = []; // To store peg data for physics
-let bottomPrizeSlots = []; // To store bottom slot data
+let pegs = [];
+let bottomPrizeSlots = [];
 
 function initializePlinkoCanvas() {
-    canvas = document.getElementById('plinkoCanvas');
-    ctx = canvas.getContext('2d');
-
-    canvas.width = PLINKO_CONFIG.BOARD_COLS * PLINKO_CONFIG.BOX_SIZE;
-    canvas.height = PLINKO_CONFIG.BOARD_ROWS * PLINKO_CONFIG.BOX_SIZE;
+    if (typeof document !== 'undefined') {
+        canvas = document.getElementById('plinkoCanvas');
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+            canvas.width = PLINKO_CONFIG.BOARD_COLS * PLINKO_CONFIG.BOX_SIZE;
+            canvas.height = PLINKO_CONFIG.BOARD_ROWS * PLINKO_CONFIG.BOX_SIZE;
+        } else {
+            console.error("Canvas element with ID 'plinkoCanvas' not found.");
+        }
+    } else {
+        console.error("Document object is not available. Cannot initialize canvas.");
+    }
 }
 
 function drawGrid() {
+    if (!ctx) return;
     ctx.strokeStyle = PLINKO_CONFIG.GRID_COLOR;
     ctx.lineWidth = 1;
     for (let i = 0; i <= PLINKO_CONFIG.BOARD_COLS; i++) {
@@ -47,12 +55,13 @@ function drawGrid() {
 }
 
 function drawTriangle(centerXInBoxes, baseYInBoxes, widthInBoxes, heightInBoxes, isPeg = true) {
+    if (!ctx) return;
     const pixelCenterX = centerXInBoxes * PLINKO_CONFIG.BOX_SIZE;
-    const pixelBaseY = baseYInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelBaseY = baseYInBoxes * PLINKO_CONFIG.BOX_SIZE; 
     const pixelWidth = widthInBoxes * PLINKO_CONFIG.BOX_SIZE;
     const pixelHeight = heightInBoxes * PLINKO_CONFIG.BOX_SIZE;
 
-    const apex = { x: pixelCenterX, y: pixelBaseY - pixelHeight };
+    const apex = { x: pixelCenterX, y: pixelBaseY - pixelHeight }; 
     const bottomLeft = { x: pixelCenterX - pixelWidth / 2, y: pixelBaseY };
     const bottomRight = { x: pixelCenterX + pixelWidth / 2, y: pixelBaseY };
 
@@ -72,32 +81,52 @@ function drawTriangle(centerXInBoxes, baseYInBoxes, widthInBoxes, heightInBoxes,
         pegs.push({
             type: 'triangle',
             vertices: [apex, bottomLeft, bottomRight],
-            // For simpler AABB collision, though triangle is more accurate
-            x: bottomLeft.x, // Bounding box x
-            y: apex.y,       // Bounding box y
+            x: bottomLeft.x,
+            y: apex.y,
             width: pixelWidth,
             height: pixelHeight,
-            center: {x: pixelCenterX, y: pixelBaseY - pixelHeight/2} // rough center
+            center: { x: pixelCenterX, y: pixelBaseY - pixelHeight / 2 }
         });
     }
 }
 
-function drawRightAngleTriangle(verticalSideXInBoxes, baseYInBoxes, widthInBoxes, heightInBoxes, type, isPeg = true) {
+function drawRightAngleTriangle(
+    verticalSideXInBoxes,
+    horizontalLegYInBoxes, 
+    widthInBoxes,
+    heightInBoxes,
+    type, 
+    isPeg = true,
+    isUpsideDown = false
+) {
+    if (!ctx) return;
     const pixelVerticalSideX = verticalSideXInBoxes * PLINKO_CONFIG.BOX_SIZE;
-    const pixelBaseY = baseYInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelHorizontalLegY = horizontalLegYInBoxes * PLINKO_CONFIG.BOX_SIZE;
     const pixelWidth = widthInBoxes * PLINKO_CONFIG.BOX_SIZE;
     const pixelHeight = heightInBoxes * PLINKO_CONFIG.BOX_SIZE;
 
-    let p1, p2, p3; // vertices
+    let p1, p2, p3;
 
-    if (type === 'rightFacingApex') {
-        p1 = { x: pixelVerticalSideX + pixelWidth, y: pixelBaseY - pixelHeight }; // Apex
-        p2 = { x: pixelVerticalSideX, y: pixelBaseY }; // Bottom-left
-        p3 = { x: pixelVerticalSideX, y: pixelBaseY - pixelHeight }; // Top-left
-    } else { // 'leftFacingApex'
-        p1 = { x: pixelVerticalSideX, y: pixelBaseY - pixelHeight }; // Apex
-        p2 = { x: pixelVerticalSideX + pixelWidth, y: pixelBaseY - pixelHeight }; // Top-right
-        p3 = { x: pixelVerticalSideX + pixelWidth, y: pixelBaseY }; // Bottom-right
+    if (isUpsideDown) {
+        if (type === 'rightFacingApex') {
+            p3 = { x: pixelVerticalSideX, y: pixelHorizontalLegY };
+            p2 = { x: pixelVerticalSideX, y: pixelHorizontalLegY + pixelHeight };
+            p1 = { x: pixelVerticalSideX + pixelWidth, y: pixelHorizontalLegY + pixelHeight };
+        } else { // leftFacingApex
+            p3 = { x: pixelVerticalSideX + pixelWidth, y: pixelHorizontalLegY };
+            p2 = { x: pixelVerticalSideX + pixelWidth, y: pixelHorizontalLegY + pixelHeight };
+            p1 = { x: pixelVerticalSideX, y: pixelHorizontalLegY + pixelHeight };
+        }
+    } else {
+        if (type === 'rightFacingApex') {
+            p1 = { x: pixelVerticalSideX + pixelWidth, y: pixelHorizontalLegY - pixelHeight };
+            p2 = { x: pixelVerticalSideX, y: pixelHorizontalLegY };
+            p3 = { x: pixelVerticalSideX, y: pixelHorizontalLegY - pixelHeight };
+        } else { // leftFacingApex
+            p1 = { x: pixelVerticalSideX, y: pixelHorizontalLegY - pixelHeight };
+            p2 = { x: pixelVerticalSideX + pixelWidth, y: pixelHorizontalLegY - pixelHeight };
+            p3 = { x: pixelVerticalSideX + pixelWidth, y: pixelHorizontalLegY };
+        }
     }
 
     ctx.beginPath();
@@ -127,12 +156,15 @@ function drawRightAngleTriangle(verticalSideXInBoxes, baseYInBoxes, widthInBoxes
             y: minY,
             width: maxX - minX,
             height: maxY - minY,
-            center: {x: (minX + maxX)/2, y: (minY + maxY)/2} // rough center
+            center: { x: (minX + maxX) / 2, y: (minY + maxY) / 2 },
+            isUpsideDown: isUpsideDown
         });
     }
 }
 
+
 function drawTopSlotLabels() {
+    if (!ctx) return;
     ctx.fillStyle = PLINKO_CONFIG.TEXT_COLOR;
     ctx.font = PLINKO_CONFIG.TEXT_FONT;
     ctx.textAlign = 'center';
@@ -145,8 +177,10 @@ function drawTopSlotLabels() {
     });
 }
 
+// MODIFIED FUNCTION
 function definePegsAndDraw() {
-    pegs = []; // Clear previous pegs before redrawing
+    if (!ctx) return 0;
+    pegs = [];
 
     // Peg Row 1
     const baseYRow1 = (1 + PLINKO_CONFIG.PEG_HEIGHT_BOXES);
@@ -164,31 +198,61 @@ function definePegsAndDraw() {
     });
 
     // Peg Row 3
-    const topYRow3_standard = baseYRow2 + 0.5;
-    const baseYRow3_standard = topYRow3_standard + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
-    const topYRow3_RA = baseYRow2 + 0.5;
-    const baseYRow3_RA = topYRow3_RA + PLINKO_CONFIG.RA_PEG_HEIGHT_BOXES;
-
-    drawRightAngleTriangle(0, baseYRow3_RA, PLINKO_CONFIG.RA_PEG_WIDTH_BOXES, PLINKO_CONFIG.RA_PEG_HEIGHT_BOXES, 'rightFacingApex');
+    const topYRow3 = baseYRow2 + 0.5; 
+    const baseYRow3_standard = topYRow3 + PLINKO_CONFIG.PEG_HEIGHT_BOXES; // Bottom Y of standard pegs in Row 3
     const pegXCentersRow3_standard = [3, 5, 7, 9, 11, 13, 15, 17, 19];
     pegXCentersRow3_standard.forEach(centerX => {
         drawTriangle(centerX, baseYRow3_standard, PLINKO_CONFIG.PEG_WIDTH_BOXES, PLINKO_CONFIG.PEG_HEIGHT_BOXES);
     });
-    drawRightAngleTriangle(PLINKO_CONFIG.BOARD_COLS - PLINKO_CONFIG.RA_PEG_WIDTH_BOXES, baseYRow3_RA, PLINKO_CONFIG.RA_PEG_WIDTH_BOXES, PLINKO_CONFIG.RA_PEG_HEIGHT_BOXES, 'leftFacingApex');
+
+    // Right-Angle Triangles on the sides of Row 3 (UPSIDE DOWN and TALLER/STEEPER)
+    const sidePegWidth = PLINKO_CONFIG.PEG_WIDTH_BOXES;         // Keep width the same as last "steeper" step (1.0)
+    const tallerSidePegHeight = PLINKO_CONFIG.RA_PEG_HEIGHT_BOXES; // Increase height (e.g., to 1.75)
+    // const tallerSidePegHeight = 2.0; // Alternative for even taller/steeper
+
+    // Calculate the top Y for these taller upside-down RA pegs to maintain bottom alignment.
+    // We want: upsideDownRAPegTopY + tallerSidePegHeight = baseYRow3_standard
+    // So: upsideDownRAPegTopY = baseYRow3_standard - tallerSidePegHeight
+    const upsideDownRAPegTopY = baseYRow3_standard - tallerSidePegHeight;
+
+    // Leftmost RA triangle (upside down, taller/steeper)
+    drawRightAngleTriangle(
+        0, 
+        upsideDownRAPegTopY, 
+        sidePegWidth,         // Use the maintained width
+        tallerSidePegHeight,  // Use the new taller height
+        'rightFacingApex', 
+        true, 
+        true  
+    );
+
+    // Rightmost RA triangle (upside down, taller/steeper)
+    const rightRATriangleStartX = PLINKO_CONFIG.BOARD_COLS - sidePegWidth; // X-start based on maintained width
+    drawRightAngleTriangle(
+        rightRATriangleStartX, 
+        upsideDownRAPegTopY,   
+        sidePegWidth,         // Use the maintained width
+        tallerSidePegHeight,  // Use the new taller height
+        'leftFacingApex',  
+        true, 
+        true  
+    );
     
-    return baseYRow3_RA; // Y-coordinate of the base of the tallest pegs in row 3
+    return baseYRow3_standard; // Bottom alignment is still with standard pegs
 }
 
+
 function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
-    bottomPrizeSlots = []; // Clear previous slots
+    if (!ctx) return;
+    bottomPrizeSlots = [];
 
     ctx.strokeStyle = PLINKO_CONFIG.SLOT_LINE_COLOR;
     ctx.lineWidth = 2;
-    const prizeSlotTopYBox = lowestPegBaseYInBoxes + 0.5;
+    const prizeSlotTopYBox = lowestPegBaseYInBoxes + 0.5; 
     const prizeSlotTopYPixel = prizeSlotTopYBox * PLINKO_CONFIG.BOX_SIZE;
 
     for (let i = 0; i <= PLINKO_CONFIG.BOARD_COLS; i += 2) {
-        if (i > 0 && i < PLINKO_CONFIG.BOARD_COLS) { // Only draw internal dividers
+        if (i > 0 && i < PLINKO_CONFIG.BOARD_COLS) {
             ctx.beginPath();
             ctx.moveTo(i * PLINKO_CONFIG.BOX_SIZE, prizeSlotTopYPixel);
             ctx.lineTo(i * PLINKO_CONFIG.BOX_SIZE, canvas.height);
@@ -200,12 +264,12 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
     ctx.lineTo(canvas.width, prizeSlotTopYPixel);
     ctx.stroke();
 
-    const prizeValues = ["+20$", "+6$", "+3$", "+1$", "+0$", "+2$", "+0$", "+1$", "+3$", "+9$", "+4$"];
+    const prizeValues = ["+20$", "+9$", "+3$", "+1$", "+0$", "+2$", "+0$", "+1$", "+3$", "+9$", "+20$"];
     ctx.fillStyle = PLINKO_CONFIG.TEXT_COLOR;
     ctx.font = PLINKO_CONFIG.TEXT_FONT;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const prizeLabelY = ((PLINKO_CONFIG.BOARD_ROWS - 1) + 0.5) * PLINKO_CONFIG.BOX_SIZE;
+    const prizeLabelY = prizeSlotTopYPixel + (canvas.height - prizeSlotTopYPixel) / 2;
 
     for (let i = 0; i < prizeValues.length; i++) {
         const slotStartX = i * 2 * PLINKO_CONFIG.BOX_SIZE;
@@ -234,10 +298,23 @@ function drawBall(ball) {
 }
 
 function drawFullPlinkoBoard() {
-    if (!ctx) initializePlinkoCanvas();
+    if (!canvas) initializePlinkoCanvas();
+    if (!ctx) {
+        console.error("Canvas context not available for drawing.");
+        return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid();
     drawTopSlotLabels();
     const lowestPegY = definePegsAndDraw();
     defineBottomSlotsAndDraw(lowestPegY);
 }
+
+// --- Example Usage (ensure you have an HTML file with <canvas id="plinkoCanvas"></canvas>) ---
+//
+// window.onload = () => {
+//     initializePlinkoCanvas(); 
+//     if (ctx) { 
+//         drawFullPlinkoBoard();
+//     }
+// };
