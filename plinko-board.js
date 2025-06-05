@@ -3,10 +3,10 @@ const PLINKO_CONFIG = {
     BOX_SIZE: 25,
     BOARD_COLS: 22,
     BOARD_ROWS: 11,
-    PEG_WIDTH_BOXES: 1,         // Width of standard triangular pegs AND the current "base width" of steeper side pegs
-    PEG_HEIGHT_BOXES: 1.25,     // Height of standard triangular pegs
-    RA_PEG_WIDTH_BOXES: 1.75,   // Original/Default width for right-angle pegs (not used for these specific side pegs now)
-    RA_PEG_HEIGHT_BOXES: 1.75,  // New height for the steeper side pegs
+    PEG_WIDTH_BOXES: 1,         // Base width for standard pegs and for scaling side pegs
+    PEG_HEIGHT_BOXES: 1.25,     // Height of standard pegs
+    RA_PEG_WIDTH_BOXES: 1.75,   // Original default width for RA pegs (not directly used for these side pegs)
+    RA_PEG_HEIGHT_BOXES: 1.75,  // Base height for scaling side pegs
     PEG_COLOR_FILL: '#888888',
     PEG_COLOR_STROKE: '#333333',
     GRID_COLOR: '#dddddd',
@@ -205,34 +205,38 @@ function definePegsAndDraw() {
         drawTriangle(centerX, baseYRow3_standard, PLINKO_CONFIG.PEG_WIDTH_BOXES, PLINKO_CONFIG.PEG_HEIGHT_BOXES);
     });
 
-    // Right-Angle Triangles on the sides of Row 3 (UPSIDE DOWN and TALLER/STEEPER)
-    const sidePegWidth = PLINKO_CONFIG.PEG_WIDTH_BOXES;         // Keep width the same as last "steeper" step (1.0)
-    const tallerSidePegHeight = PLINKO_CONFIG.RA_PEG_HEIGHT_BOXES; // Increase height (e.g., to 1.75)
-    // const tallerSidePegHeight = 2.0; // Alternative for even taller/steeper
+    // Right-Angle Triangles on the sides of Row 3 (UPSIDE DOWN, SCALED 1.1x)
+    const scaleFactor = 1.1;
+    const baseSidePegWidth = PLINKO_CONFIG.PEG_WIDTH_BOXES;         // Base width from previous "steeper" step (1.0)
+    const baseSidePegHeight = PLINKO_CONFIG.RA_PEG_HEIGHT_BOXES;    // Base height from previous "steeper" step (1.75)
 
-    // Calculate the top Y for these taller upside-down RA pegs to maintain bottom alignment.
-    // We want: upsideDownRAPegTopY + tallerSidePegHeight = baseYRow3_standard
-    // So: upsideDownRAPegTopY = baseYRow3_standard - tallerSidePegHeight
-    const upsideDownRAPegTopY = baseYRow3_standard - tallerSidePegHeight;
+    const scaledSidePegWidth = baseSidePegWidth * scaleFactor;     // New scaled width
+    const scaledSidePegHeight = baseSidePegHeight * scaleFactor;   // New scaled height
 
-    // Leftmost RA triangle (upside down, taller/steeper)
+    // Calculate the top Y for these scaled upside-down RA pegs to maintain bottom alignment.
+    // We want: upsideDownRAPegTopY + scaledSidePegHeight = baseYRow3_standard
+    // So: upsideDownRAPegTopY = baseYRow3_standard - scaledSidePegHeight
+    const upsideDownRAPegTopY = baseYRow3_standard - scaledSidePegHeight;
+
+    // Leftmost RA triangle (upside down, scaled)
     drawRightAngleTriangle(
         0, 
         upsideDownRAPegTopY, 
-        sidePegWidth,         // Use the maintained width
-        tallerSidePegHeight,  // Use the new taller height
+        scaledSidePegWidth,   // Use the new scaled width
+        scaledSidePegHeight,  // Use the new scaled height
         'rightFacingApex', 
         true, 
         true  
     );
 
-    // Rightmost RA triangle (upside down, taller/steeper)
-    const rightRATriangleStartX = PLINKO_CONFIG.BOARD_COLS - sidePegWidth; // X-start based on maintained width
+    // Rightmost RA triangle (upside down, scaled)
+    // Adjust X-start based on the new scaled width
+    const rightRATriangleStartX = PLINKO_CONFIG.BOARD_COLS - scaledSidePegWidth; 
     drawRightAngleTriangle(
         rightRATriangleStartX, 
         upsideDownRAPegTopY,   
-        sidePegWidth,         // Use the maintained width
-        tallerSidePegHeight,  // Use the new taller height
+        scaledSidePegWidth,   // Use the new scaled width
+        scaledSidePegHeight,  // Use the new scaled height
         'leftFacingApex',  
         true, 
         true  

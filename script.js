@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
-const currentPlayerNameDisplayEl = document.getElementById('current-player-name-display');
+    const currentPlayerNameDisplayEl = document.getElementById('current-player-name-display');
     const playerMoneyDisplayEl = document.getElementById('player-money-display');
     const playerInfoEl = document.getElementById('player-info');
 
@@ -20,7 +20,7 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
     const dropBallBtn = document.getElementById('drop-ball-btn');
     const prizeMessageEl = document.getElementById('prize-message');
     const finalMoneyMessageEl = document.getElementById('final-money-message');
-    
+
     const highScoreDisplayEl = document.getElementById('high-score-display');
     const highScoreListEl = document.getElementById('high-score-list');
 
@@ -29,7 +29,10 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
 
     // Game State
     let currentPlayerName = "";
-    let playerMoney = 0; 
+    let playerMoney = 0;
+    // --- MODIFICATION START ---
+    let sessionMaxMoney = 0; // To track the peak money during the current session
+    // --- MODIFICATION END ---
     const initialPlayerMoney = 6;
     const rollCost = 3;
     let selectedSlotNumber = 0;
@@ -37,7 +40,7 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
     const topScoresKey = 'plinkoDiceTopScores';
     const maxTopScores = 10;
     let isGameActive = false;
-    let isOverlayVisible = false; // New flag to explicitly track overlay state
+    let isOverlayVisible = false;
 
     console.log("Script loaded. Initial isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible);
 
@@ -52,11 +55,11 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
         topScores.sort((a, b) => b.score - a.score);
         topScores = topScores.slice(0, maxTopScores);
         localStorage.setItem(topScoresKey, JSON.stringify(topScores));
-        return topScores; 
+        return topScores;
     }
 
     function displayTopScores(scores) {
-        highScoreListEl.innerHTML = ''; 
+        highScoreListEl.innerHTML = '';
         if (scores && scores.length > 0) {
             scores.forEach(entry => {
                 const listItem = document.createElement('li');
@@ -72,12 +75,11 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
 
     // --- UI UPDATE FUNCTIONS ---
     function updatePlayerInfoDisplay() {
-        // console.log("Updating player info display. isGameActive:", isGameActive, "Player Money:", playerMoney);
         currentPlayerNameDisplayEl.textContent = currentPlayerName || "Guest";
         playerMoneyDisplayEl.textContent = `$${playerMoney}`;
-        
+
         if (rollDiceBtn) {
-            if (!isGameActive || playerMoney < rollCost) { 
+            if (!isGameActive || playerMoney < rollCost) {
                 rollDiceBtn.disabled = true;
                 rollDiceBtn.textContent = !isGameActive ? "Game Over" : "Not enough money!";
             } else {
@@ -90,9 +92,9 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
     // --- GAME FLOW & STATE MANAGEMENT ---
     function resetForNewRound() {
         console.log("resetForNewRound called. Current isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible);
-        isGameActive = true; 
-        isOverlayVisible = false; // Overlay should be hidden now
-        gameOverOverlayEl.classList.add('hidden'); 
+        isGameActive = true;
+        isOverlayVisible = false;
+        gameOverOverlayEl.classList.add('hidden');
 
         diceStageEl.classList.remove('hidden');
         plinkoStageEl.classList.add('hidden');
@@ -104,19 +106,19 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
         if (rollDiceBtn) rollDiceBtn.disabled = (playerMoney < rollCost);
         console.log("resetForNewRound finished. New isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible);
     }
-    
+
     function prepareForNewGameSession() {
         console.log("prepareForNewGameSession called.");
-        isGameActive = false; 
+        isGameActive = false;
         isOverlayVisible = false;
         namePromptStageEl.classList.remove('hidden');
         diceStageEl.classList.add('hidden');
         plinkoStageEl.classList.add('hidden');
-        gameOverOverlayEl.classList.add('hidden'); 
-        playerInfoEl.classList.add('hidden'); 
+        gameOverOverlayEl.classList.add('hidden');
+        playerInfoEl.classList.add('hidden');
         playerNameInputEl.value = '';
-        displayTopScores(getTopScores()); 
-        updatePlayerInfoDisplay(); 
+        displayTopScores(getTopScores());
+        updatePlayerInfoDisplay();
     }
 
     function startGameSession() {
@@ -126,43 +128,51 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
             alert("Please enter a name to start!");
             return;
         }
-        playerMoney = initialPlayerMoney; 
-        // isGameActive will be set by resetForNewRound
+        playerMoney = initialPlayerMoney;
+        // --- MODIFICATION START ---
+        sessionMaxMoney = initialPlayerMoney; // Initialize session max money
+        // --- MODIFICATION END ---
 
         namePromptStageEl.classList.add('hidden');
         playerInfoEl.classList.remove('hidden');
         if (typeof initializePlinkoCanvas === 'function' && document.getElementById('plinkoCanvas')) {
-             initializePlinkoCanvas();
+            initializePlinkoCanvas();
         }
-        resetForNewRound(); // This will set isGameActive = true and isOverlayVisible = false
+        resetForNewRound();
     }
 
     function handleQuitGame() {
         console.log("handleQuitGame called.");
-        isGameActive = false; 
-        isOverlayVisible = false; // Explicitly set, though prepareForNewGameSession also does
+        isGameActive = false;
+        isOverlayVisible = false;
         if (typeof stopBallAnimation === 'function') {
             console.log("Stopping ball animation in handleQuitGame");
             stopBallAnimation();
         }
 
-        const updatedScores = saveScoreToTopList(currentPlayerName, playerMoney);
-        displayTopScores(updatedScores); 
-        alert(`${currentPlayerName}, your final score of $${playerMoney} has been recorded. Thanks for playing!`);
-        
-        gameOverOverlayEl.classList.add('hidden'); 
-        prepareForNewGameSession(); 
+        // --- MODIFICATION START ---
+        // Save sessionMaxMoney instead of current playerMoney
+        const updatedScores = saveScoreToTopList(currentPlayerName, sessionMaxMoney);
+        displayTopScores(updatedScores);
+        alert(`${currentPlayerName}, your session high score of $${sessionMaxMoney} has been recorded. Thanks for playing!`);
+        // --- MODIFICATION END ---
+
+        gameOverOverlayEl.classList.add('hidden');
+        prepareForNewGameSession();
     }
 
-    function showRoundOverScreen(isOutOfMoneyForNextRound = false) {
-        console.log("showRoundOverScreen called. isOutOfMoney:", isOutOfMoneyForNextRound, "Current playerMoney:", playerMoney);
+    // --- MODIFICATION START ---
+    // Added roundPrizeAmount parameter
+    function showRoundOverScreen(isOutOfMoneyForNextRound = false, roundPrizeAmount = 0) {
+    // --- MODIFICATION END ---
+        console.log("showRoundOverScreen called. isOutOfMoney:", isOutOfMoneyForNextRound, "Current playerMoney:", playerMoney, "Round Prize:", roundPrizeAmount);
         if (isOverlayVisible) {
             console.warn("showRoundOverScreen called while overlay is already considered visible. Aborting to prevent multiple triggers.");
-            return; // Prevent re-triggering if already visible
+            return;
         }
 
-        isGameActive = false; 
-        isOverlayVisible = true; // Mark overlay as visible
+        isGameActive = false;
+        isOverlayVisible = true;
         if (typeof stopBallAnimation === 'function') {
             console.log("Stopping ball animation in showRoundOverScreen");
             stopBallAnimation();
@@ -170,18 +180,34 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
 
         const currentTopScores = getTopScores();
         displayTopScores(currentTopScores);
-        
-        prizeMessageEl.textContent = isOutOfMoneyForNextRound ? "Out of Money for Next Round!" : "Round Over!";
+
+        // --- MODIFICATION START ---
+        // Update prize message text
+        if (isOutOfMoneyForNextRound) {
+            prizeMessageEl.textContent = "Out of Money for Next Round!";
+        } else {
+            if (roundPrizeAmount > 0) {
+                prizeMessageEl.textContent = `Game Over! You Won $${roundPrizeAmount}`;
+            } else if (roundPrizeAmount < 0) {
+                prizeMessageEl.textContent = `Game Over! You Lost $${Math.abs(roundPrizeAmount)}`;
+            } else { // prizeAmount is 0 (e.g., from "Lost!" or a $0 slot)
+                prizeMessageEl.textContent = `Game Over! You Won $0`; // Or "You Broke Even!" or "No Prize This Round!"
+            }
+        }
+        // --- MODIFICATION END ---
         finalMoneyMessageEl.textContent = `${currentPlayerName}, your current total is $${playerMoney}.`;
-        
-        if (playAgainBtn) playAgainBtn.disabled = isOutOfMoneyForNextRound;
-        
-        gameOverOverlayEl.classList.remove('hidden'); 
-        updatePlayerInfoDisplay(); 
+
+        if (playAgainBtn) playAgainBtn.disabled = isOutOfMoneyForNextRound && playerMoney < rollCost; // Disable if out of money for next round, AND truly can't afford it.
+                                                                                                 // The 'isOutOfMoneyForNextRound' part of the condition for disabling
+                                                                                                 // might be redundant if we handle the quit logic in playAgain listener
+
+        gameOverOverlayEl.classList.remove('hidden');
+        updatePlayerInfoDisplay();
         console.log("showRoundOverScreen finished. isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible);
     }
 
-   function startDiceRollAnimation() {
+
+    function startDiceRollAnimation() {
         let animationTicks = 0;
         const maxTicks = 10;
         dice1El.classList.add('rolling');
@@ -213,13 +239,15 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
     }
 
     function rollDice() {
-        if (!isGameActive || isOverlayVisible) { // Added isOverlayVisible check
+        if (!isGameActive || isOverlayVisible) {
             console.warn("Roll dice attempt while game not active or overlay visible.");
             return;
         }
         if (playerMoney < rollCost) {
-            // This should ideally be caught by button disable, but as a safeguard:
-            showRoundOverScreen(true); // Go to game over if somehow clicked with no money
+            // --- MODIFICATION START ---
+            // This condition means the game should end. Pass the current prize (0 for dice roll phase)
+            showRoundOverScreen(true, 0); // Go to game over if somehow clicked with no money
+            // --- MODIFICATION END ---
             return;
         }
         playerMoney -= rollCost;
@@ -236,11 +264,13 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
         if (sum <= 12) return 5;
         return 3;
     }
+
     function clearTableHighlights() {
         diceSumTableBody.querySelectorAll('tr').forEach(row => {
             row.classList.remove('highlighted');
         });
     }
+
     function highlightTableRow(sum) {
         clearTableHighlights();
         const rows = diceSumTableBody.querySelectorAll('tr');
@@ -251,48 +281,43 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
             }
         });
     }
-    
+
     function transitionToPlinko() {
-        if (!isGameActive || isOverlayVisible) { // Added isOverlayVisible check
+        if (!isGameActive || isOverlayVisible) {
             console.warn("Transition to Plinko attempt while game not active or overlay visible.");
             return;
         }
 
         diceStageEl.classList.add('hidden');
         plinkoStageEl.classList.remove('hidden');
-        
-        if (typeof initializePlinkoCanvas === 'function' && document.getElementById('plinkoCanvas') && !window.canvas) { 
-             initializePlinkoCanvas();
+
+        if (typeof initializePlinkoCanvas === 'function' && document.getElementById('plinkoCanvas') && !window.canvas) {
+            initializePlinkoCanvas();
         }
         if (typeof drawFullPlinkoBoard === 'function') drawFullPlinkoBoard();
-        if (typeof resetBall === 'function') resetBall(selectedSlotNumber); 
+        if (typeof resetBall === 'function') resetBall(selectedSlotNumber);
         if (typeof drawBall === 'function' && window.ball) drawBall(window.ball);
         if (dropBallBtn) dropBallBtn.classList.remove('hidden');
     }
-    
+
     function onDropBallClicked() {
-        if (!isGameActive || isOverlayVisible) { // Added isOverlayVisible check
+        if (!isGameActive || isOverlayVisible) {
             console.warn("Drop ball attempt while game not active or overlay visible.");
             return;
         }
 
         if (dropBallBtn) dropBallBtn.classList.add('hidden');
-        if (typeof startBallAnimation === 'function') startBallAnimation(); 
+        if (typeof startBallAnimation === 'function') startBallAnimation();
     }
 
     window.handleBallLanded = function(prizeString) {
         console.log("handleBallLanded called. isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible, "Prize:", prizeString);
-        
-        // If overlay is already visible, this means showRoundOverScreen was already called for this landing.
-        // Or, if the game is not supposed to be active (e.g., after quitting).
+
         if (isOverlayVisible || !isGameActive) {
             console.warn("handleBallLanded: Ball landed but overlay is already visible or game is inactive. Stopping animation if any and returning.");
             if (typeof stopBallAnimation === 'function') stopBallAnimation();
-            return; 
+            return;
         }
-        
-        // At this point, isGameActive should be true, and isOverlayVisible should be false.
-        // showRoundOverScreen will set isGameActive = false and isOverlayVisible = true.
 
         let prizeAmount = 0;
         if (prizeString !== "Lost!") {
@@ -305,30 +330,44 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
         console.log("Prize amount calculated:", prizeAmount);
         playerMoney += prizeAmount;
         console.log("Player money after prize:", playerMoney);
-        showRoundOverScreen(playerMoney < rollCost); 
+
+        // --- MODIFICATION START ---
+        // Update sessionMaxMoney if current playerMoney is higher
+        if (playerMoney > sessionMaxMoney) {
+            sessionMaxMoney = playerMoney;
+            console.log("New sessionMaxMoney:", sessionMaxMoney);
+        }
+        // Pass prizeAmount to showRoundOverScreen
+        showRoundOverScreen(playerMoney < rollCost, prizeAmount);
+        // --- MODIFICATION END ---
     }
 
     // --- EVENT LISTENERS ---
     if (startGameBtn) startGameBtn.addEventListener('click', startGameSession);
     if (rollDiceBtn) rollDiceBtn.addEventListener('click', rollDice);
     if (dropBallBtn) dropBallBtn.addEventListener('click', onDropBallClicked);
-    
+
     if (playAgainBtn) {
         playAgainBtn.addEventListener('click', () => {
             console.log("Play Again button clicked. isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible, "Player Money:", playerMoney);
+            // --- MODIFICATION START ---
+            // If player can't afford next round, force quit
             if (playerMoney < rollCost) {
-                alert("You don't have enough money for the next round. Please quit to save your score.");
+                alert("You don't have enough money for the next round. Your session high score will be saved.");
+                gameOverOverlayEl.classList.add('hidden'); // Hide overlay before quit
+                isOverlayVisible = false;
+                isGameActive = false;
+                handleQuitGame(); // This will save the sessionMaxMoney and go to name prompt
                 return;
             }
+            // --- MODIFICATION END ---
+
             if (!isOverlayVisible && isGameActive) {
                 console.warn("Play Again clicked, but overlay isn't visible or game is already active. This shouldn't happen.");
-                // Potentially reset here anyway if this state is reached, but it indicates a logic flow issue.
             }
-            
-            // Explicitly hide overlay and set flags before resetting.
+
             gameOverOverlayEl.classList.add('hidden');
-            isOverlayVisible = false; 
-            // isGameActive will be set true by resetForNewRound
+            isOverlayVisible = false;
             resetForNewRound();
         });
     }
@@ -336,15 +375,14 @@ const currentPlayerNameDisplayEl = document.getElementById('current-player-name-
     if (quitGameBtn) {
         quitGameBtn.addEventListener('click', () => {
             console.log("Quit Game button clicked.");
-            // Explicitly hide overlay and set flags before handling quit.
             gameOverOverlayEl.classList.add('hidden');
             isOverlayVisible = false;
-            isGameActive = false; // Ensure game is inactive before handling quit
+            isGameActive = false;
             handleQuitGame();
         });
     }
 
     // --- INITIALIZATION ---
     displayTopScores(getTopScores());
-    prepareForNewGameSession(); 
+    prepareForNewGameSession();
 });
