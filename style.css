@@ -5,13 +5,13 @@ body {
     align-items: flex-start; /* Align to top for longer content */
     min-height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #e0f7fa, #ffe0f7);
     padding-top: 20px; /* Add some padding at the top */
 }
 
 #game-container {
     text-align: center;
-    background-color: #ffffff;
+    background: linear-gradient(to bottom, #ffffff, #fffde7);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.1);
@@ -91,7 +91,7 @@ body {
     font-size: 24px;
     font-weight: bold;
     margin: 0 10px;
-    background-color: #fff;
+    background-color: #ffecb3;
     transition: transform 0.1s ease-out; /* For animation */
 }
 
@@ -113,24 +113,24 @@ body {
     padding: 12px 25px; /* Slightly larger padding */
     font-size: 18px;    /* Slightly larger font */
     cursor: pointer;
-    background-color: #4CAF50; /* Green for most actions */
+    background: linear-gradient(to bottom, #4CAF50, #2e7d32);
     color: white;
     border: none;
     border-radius: 5px;
     margin-top: 15px;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
 }
 #quit-game-btn {
-    background-color: #f44336; /* Red for quit */
+    background: linear-gradient(to bottom, #f44336, #c62828);
     margin-left: 10px; /* Space it from play again if they are in the same container */
 }
 
 
 #roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover {
-    background-color: #45a049;
+    background: linear-gradient(to bottom, #66bb6a, #388e3c);
 }
 #quit-game-btn:hover {
-    background-color: #da190b;
+    background: linear-gradient(to bottom, #e53935, #b71c1c);
 }
 
 
@@ -158,11 +158,11 @@ body {
 }
 
 #dice-sum-table th {
-    background-color: #f2f2f2;
+    background-color: #ffe082;
 }
 
 #dice-sum-table tr.highlighted td {
-    background-color: #ffeb3b; /* Yellow highlight */
+    background-color: #ffab40; /* Orange highlight */
     font-weight: bold;
 }
 
@@ -226,14 +226,14 @@ body {
 
 #high-score-display {
     margin-top: 15px;
-    margin-bottom: 15px; 
+    margin-bottom: 15px;
     padding: 10px;
     border: 1px dashed #ccc;
     border-radius: 4px;
-    background-color: #f9f9f9;
+    background-color: #e1f5fe;
     max-height: 180px; /* Limit height for scores */
-    overflow-y: auto;   
-    text-align: left;   
+    overflow-y: auto;
+    text-align: left;
 }
 #high-score-display h3 {
     margin-top: 0;

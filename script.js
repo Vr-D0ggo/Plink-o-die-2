@@ -350,17 +350,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playAgainBtn) {
         playAgainBtn.addEventListener('click', () => {
             console.log("Play Again button clicked. isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible, "Player Money:", playerMoney);
-            // --- MODIFICATION START ---
-            // If player can't afford next round, force quit
+            // If player can't afford the next round, behave exactly like the
+            // "Quit Game & Save" button.
             if (playerMoney < rollCost) {
-                alert("You don't have enough money for the next round. Your session high score will be saved.");
-                gameOverOverlayEl.classList.add('hidden'); // Hide overlay before quit
+                gameOverOverlayEl.classList.add('hidden');
                 isOverlayVisible = false;
                 isGameActive = false;
-                handleQuitGame(); // This will save the sessionMaxMoney and go to name prompt
+                handleQuitGame();
                 return;
             }
-            // --- MODIFICATION END ---
 
             if (!isOverlayVisible && isGameActive) {
                 console.warn("Play Again clicked, but overlay isn't visible or game is already active. This shouldn't happen.");
