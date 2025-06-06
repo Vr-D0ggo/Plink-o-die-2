@@ -197,10 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- MODIFICATION END ---
         finalMoneyMessageEl.textContent = `${currentPlayerName}, your current total is $${playerMoney}.`;
 
-        if (playAgainBtn) playAgainBtn.disabled = isOutOfMoneyForNextRound && playerMoney < rollCost; // Disable if out of money for next round, AND truly can't afford it.
-                                                                                                 // The 'isOutOfMoneyForNextRound' part of the condition for disabling
-                                                                                                 // might be redundant if we handle the quit logic in playAgain listener
-
+        // Always keep the "Play Next Round" button enabled so that when the
+        // player is out of money they can press it to trigger the same flow as
+        // quitting the game. The click handler will check the funds and call
+        // handleQuitGame when necessary.
+        if (playAgainBtn) playAgainBtn.disabled = false;
         gameOverOverlayEl.classList.remove('hidden');
         updatePlayerInfoDisplay();
         console.log("showRoundOverScreen finished. isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible);
