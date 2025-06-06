@@ -7,14 +7,14 @@ const PLINKO_CONFIG = {
     PEG_HEIGHT_BOXES: 1.25,     // Height of standard pegs
     RA_PEG_WIDTH_BOXES: 1.75,   // Original default width for RA pegs (not directly used for these side pegs)
     RA_PEG_HEIGHT_BOXES: 1.75,  // Base height for scaling side pegs
-    PEG_COLOR_FILL: '#888888',
-    PEG_COLOR_STROKE: '#333333',
-    GRID_COLOR: '#dddddd',
-    SLOT_LINE_COLOR: '#555555',
+    PEG_COLOR_FILL: '#03a9f4',
+    PEG_COLOR_STROKE: '#01579b',
+    GRID_COLOR: '#b0bec5',
+    SLOT_LINE_COLOR: '#ff5722',
     TEXT_COLOR: '#000000',
     TEXT_FONT: 'bold 14px Arial',
     BALL_RADIUS_BOXES: 0.35,
-    BALL_COLOR: 'red',
+    BALL_COLOR: '#ff4081',
 };
 
 let canvas, ctx;
