@@ -15,6 +15,7 @@ const PLINKO_CONFIG = {
     TEXT_FONT: 'bold 14px Arial',
     BALL_RADIUS_BOXES: 0.35,
     BALL_COLOR: '#ff4081',
+    BOARD_BG_COLOR: '#000',
 };
 
 let canvas, ctx;
@@ -263,10 +264,13 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
             ctx.stroke();
         }
     }
+
     ctx.beginPath();
+    ctx.strokeStyle = PLINKO_CONFIG.BOARD_BG_COLOR;
     ctx.moveTo(0, prizeSlotTopYPixel);
     ctx.lineTo(canvas.width, prizeSlotTopYPixel);
     ctx.stroke();
+    ctx.strokeStyle = PLINKO_CONFIG.SLOT_LINE_COLOR;
 
     const prizeValues = ["+20$", "+9$", "+3$", "+1$", "+0$", "+2$", "+0$", "+1$", "+3$", "+9$", "+20$"];
     ctx.fillStyle = PLINKO_CONFIG.TEXT_COLOR;
