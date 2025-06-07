@@ -5,16 +5,17 @@ body {
     align-items: flex-start; /* Align to top for longer content */
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #e0f7fa, #ffe0f7);
+    background-color: #000; /* Dark background */
+    color: #0ff; /* Default neon text color */
     padding-top: 20px; /* Add some padding at the top */
 }
 
 #game-container {
     text-align: center;
-    background: linear-gradient(to bottom, #ffffff, #fffde7);
+    background: #111;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px #0ff;
     position: relative; /* For overlay positioning */
     max-width: 90vw; /* Prevent it from getting too wide */
 }
@@ -25,10 +26,10 @@ body {
     right: 20px;
     font-size: 16px;
     font-weight: bold;
-    color: #333;
+    color: #0ff;
 }
 #current-player-name-display {
-    color: #007bff; /* Highlight player name */
+    color: #f0f; /* Highlight player name */
 }
 
 
@@ -49,27 +50,32 @@ body {
     display: block;
     margin-bottom: 10px;
     font-size: 18px;
+    color: #0ff;
 }
 #name-prompt-stage input[type="text"] {
     padding: 8px;
     font-size: 16px;
     margin-bottom: 15px;
     width: 200px;
-    border: 1px solid #ccc;
+    background-color: #000;
+    color: #0ff;
+    border: 1px solid #f0f;
     border-radius: 4px;
+    box-shadow: 0 0 8px #f0f;
 }
 #name-prompt-stage button, #start-game-btn { /* Included start-game-btn for consistency */
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #28a745; /* Green */
-    color: white;
+    background: linear-gradient(45deg, #f0f, #0ff);
+    color: #000;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 0 10px #0ff;
+    transition: opacity 0.3s ease;
 }
 #name-prompt-stage button:hover, #start-game-btn:hover {
-    background-color: #218838;
+    opacity: 0.8;
 }
 
 
@@ -83,7 +89,7 @@ body {
 .dice {
     width: 60px;
     height: 60px;
-    border: 2px solid #333;
+    border: 2px solid #0ff;
     border-radius: 5px;
     display: flex;
     justify-content: center;
@@ -91,7 +97,9 @@ body {
     font-size: 24px;
     font-weight: bold;
     margin: 0 10px;
-    background-color: #ffecb3;
+    background-color: #000;
+    color: #0ff;
+    box-shadow: 0 0 10px #0ff;
     transition: transform 0.1s ease-out; /* For animation */
 }
 
@@ -113,31 +121,32 @@ body {
     padding: 12px 25px; /* Slightly larger padding */
     font-size: 18px;    /* Slightly larger font */
     cursor: pointer;
-    background: linear-gradient(to bottom, #4CAF50, #2e7d32);
-    color: white;
+    background: linear-gradient(45deg, #f0f, #0ff);
+    color: #000;
     border: none;
     border-radius: 5px;
     margin-top: 15px;
-    transition: background 0.3s ease;
+    box-shadow: 0 0 10px #0ff;
+    transition: opacity 0.3s ease;
 }
 #quit-game-btn {
-    background: linear-gradient(to bottom, #f44336, #c62828);
+    background: linear-gradient(45deg, #ff0066, #ffea00);
     margin-left: 10px; /* Space it from play again if they are in the same container */
 }
 
 
 #roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover {
-    background: linear-gradient(to bottom, #66bb6a, #388e3c);
+    opacity: 0.8;
 }
 #quit-game-btn:hover {
-    background: linear-gradient(to bottom, #e53935, #b71c1c);
+    opacity: 0.8;
 }
 
 
 #roll-dice-btn:disabled {
-    background-color: #cccccc;
+    background-color: #333;
     cursor: not-allowed;
-    color: #666666;
+    color: #666;
 }
 
 
@@ -152,18 +161,21 @@ body {
 }
 
 #dice-sum-table th, #dice-sum-table td {
-    border: 1px solid #ddd;
+    border: 1px solid #0ff;
     padding: 8px 12px;
     text-align: center;
+    background-color: #000;
+    color: #0ff;
 }
 
 #dice-sum-table th {
-    background-color: #ffe082;
+    background-color: #111;
 }
 
 #dice-sum-table tr.highlighted td {
-    background-color: #ffab40; /* Orange highlight */
+    background-color: #ff0066; /* Neon highlight */
     font-weight: bold;
+    color: #fff;
 }
 
 
@@ -173,9 +185,10 @@ body {
 }
 
 #plinkoCanvas {
-    border: 1px solid #ccc;
-    background-color: white; /* Ensure canvas background is white for drawn grid */
+    border: 1px solid #0ff;
+    background-color: #000; /* Ensure canvas background is dark for neon board */
     margin-top: 10px; /* Space above canvas */
+    box-shadow: 0 0 10px #0ff;
 }
 
 #drop-ball-btn {
@@ -187,6 +200,11 @@ body {
     z-index: 10;
     padding: 15px 30px; /* Make it bigger */
     font-size: 20px;     /* Bigger font */
+    background: linear-gradient(45deg, #f0f, #0ff);
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #0ff;
 }
 
 
@@ -205,41 +223,44 @@ body {
 }
 
 .overlay-content {
-    background-color: white;
+    background-color: #111;
     padding: 20px 30px; /* Adjusted padding */
     border-radius: 8px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 20px #0ff;
     max-width: 450px; /* Max width for overlay content */
     width: 90%;      /* Responsive width */
 }
 
 .overlay-content h2 {
     margin-top: 0;
-    margin-bottom: 10px; 
-    color: #333;
+    margin-bottom: 10px;
+    color: #f0f;
 }
 .overlay-content p {
-    margin-bottom: 10px; 
+    margin-bottom: 10px;
     font-size: 16px; /* Adjusted font size */
+    color: #0ff;
 }
 
 #high-score-display {
     margin-top: 15px;
     margin-bottom: 15px;
     padding: 10px;
-    border: 1px dashed #ccc;
+    border: 1px dashed #0ff;
     border-radius: 4px;
-    background-color: #e1f5fe;
+    background-color: #000;
     max-height: 180px; /* Limit height for scores */
     overflow-y: auto;
     text-align: left;
+    box-shadow: 0 0 10px #0ff;
 }
 #high-score-display h3 {
     margin-top: 0;
     margin-bottom: 8px;
     text-align: center;
     font-size: 18px;
+    color: #f0f;
 }
 #high-score-list {
     list-style-position: inside; /* Numbers inside the list item box */
@@ -249,7 +270,8 @@ body {
 #high-score-list li {
     padding: 4px 0; /* Vertical padding */
     font-size: 14px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #0ff;
+    color: #0ff;
 }
 #high-score-list li:last-child {
     border-bottom: none;
