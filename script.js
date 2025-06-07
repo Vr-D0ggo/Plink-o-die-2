@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Game State
     let currentPlayerName = "";
     let playerMoney = 0;
+    let badWordCount = 0; // Counter for filtered usernames
     // --- MODIFICATION START ---
     let sessionMaxMoney = 0; // To track the peak money during the current session
     // --- MODIFICATION END ---
@@ -71,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
             highScoreListEl.innerHTML = '<li>No scores yet!</li>';
             highScoreDisplayEl.classList.remove('hidden');
         }
+    }
+
+    function containsBadWord(name) {
+        if (!Array.isArray(window.BAD_WORDS)) return false;
+        const lower = name.toLowerCase();
+        return window.BAD_WORDS.some(word => lower.includes(word.toLowerCase()));
     }
 
     // --- UI UPDATE FUNCTIONS ---
@@ -127,6 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentPlayerName) {
             alert("Please enter a name to start!");
             return;
+        }
+        if (containsBadWord(currentPlayerName)) {
+            badWordCount += 1;
+            currentPlayerName = `I-put-in-a-bad-word(${badWordCount})`;
         }
         playerMoney = initialPlayerMoney;
         // --- MODIFICATION START ---
