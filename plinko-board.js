@@ -11,7 +11,7 @@ const PLINKO_CONFIG = {
     PEG_COLOR_STROKE: '#01579b',
     GRID_COLOR: '#b0bec5',
     SLOT_LINE_COLOR: '#ff5722',
-    TEXT_COLOR: '#000000',
+    TEXT_COLOR: '#b0bec5',
     TEXT_FONT: 'bold 14px Arial',
     BALL_RADIUS_BOXES: 0.35,
     BALL_COLOR: '#ff4081',
