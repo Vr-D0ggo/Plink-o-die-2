@@ -13,6 +13,7 @@ let ball = {
 };
 
 let animationFrameId = null;
+let landingTimeoutId = null; // delay timer for landing popup
 
 function resetBall(slotNumber) {
     // Ensure canvas and PLINKO_CONFIG.BOX_SIZE are available
@@ -22,6 +23,11 @@ function resetBall(slotNumber) {
     }
 
     const slotDropXCenters = [3, 7, 11, 15, 19]; // In Box units
+
+    if (landingTimeoutId) {
+        clearTimeout(landingTimeoutId);
+        landingTimeoutId = null;
+    }
 
     ball.x = slotDropXCenters[slotNumber - 1] * PLINKO_CONFIG.BOX_SIZE;
     ball.y = 0.5 * PLINKO_CONFIG.BOX_SIZE; // Start slightly above the first row
@@ -112,27 +118,33 @@ function updateBallPosition() {
     // Ensure bottomPrizeSlots is defined and is an array
     if (typeof bottomPrizeSlots !== 'undefined' && Array.isArray(bottomPrizeSlots)) {
         for (const slot of bottomPrizeSlots) {
-            if (ball.y + ball.radius > slot.y &&       // Ball's bottom edge is below slot's top
-                ball.x > slot.x &&                     // Ball is within slot's left boundary
-                ball.x < slot.x + slot.width) {        // Ball is within slot's right boundary
-
-                // Optional: check if it's also below the top of the slot + some threshold
-                // to prevent triggering too early if it just skims the top opening.
-                // This original check is fine for typical plinko slots.
-                if (ball.y - ball.radius < slot.y + slot.height) { // Ball's top edge is above slot's bottom
+            if (ball.x > slot.x && ball.x < slot.x + slot.width) { // horizontal check
+                if (ball.y + ball.radius >= canvas.height) { // reached bottom of canvas
+                    // Keep the ball at the bottom
+                    ball.y = canvas.height - ball.radius;
                     ball.vy = 0;
-                    ball.vx = 0;
-                    ball.y = slot.y + slot.height - ball.radius - 2; // Settle it in the slot
 
-                    // IMPORTANT: Stop animation BEFORE calling handleBallLanded
-                    stopBallAnimation();
-
-                    if (typeof window.handleBallLanded === 'function') {
-                        window.handleBallLanded(slot.prize);
-                    } else {
-                        console.error("window.handleBallLanded is not a function!");
+                    // Bounce off slot walls so it "rolls" around
+                    if (ball.x - ball.radius <= slot.x) {
+                        ball.x = slot.x + ball.radius;
+                        ball.vx *= -ball.restitution;
                     }
-                    return; // Exit updateBallPosition as the ball has landed
+                    if (ball.x + ball.radius >= slot.x + slot.width) {
+                        ball.x = slot.x + slot.width - ball.radius;
+                        ball.vx *= -ball.restitution;
+                    }
+
+                    if (!landingTimeoutId) {
+                        landingTimeoutId = setTimeout(() => {
+                            stopBallAnimation();
+                            if (typeof window.handleBallLanded === 'function') {
+                                window.handleBallLanded(slot.prize);
+                            } else {
+                                console.error('window.handleBallLanded is not a function!');
+                            }
+                            landingTimeoutId = null;
+                        }, 3000);
+                    }
                 }
             }
         }
@@ -207,6 +219,10 @@ function stopBallAnimation() {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null; // Crucially set to null to stop the gameLoop
         // console.log("stopBallAnimation: animationFrameId set to null.");
+    }
+    if (landingTimeoutId) {
+        clearTimeout(landingTimeoutId);
+        landingTimeoutId = null;
     }
 }
 
