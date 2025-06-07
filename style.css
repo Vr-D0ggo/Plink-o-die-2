@@ -5,16 +5,17 @@ body {
     align-items: flex-start; /* Align to top for longer content */
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #e0f7fa, #ffe0f7);
+    background: #000; /* Dark backdrop for neon style */
+    color: #fff;
     padding-top: 20px; /* Add some padding at the top */
 }
 
 #game-container {
     text-align: center;
-    background: linear-gradient(to bottom, #ffffff, #fffde7);
+    background: #111;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px #0ff; /* Neon glow */
     position: relative; /* For overlay positioning */
     max-width: 90vw; /* Prevent it from getting too wide */
 }
@@ -25,10 +26,10 @@ body {
     right: 20px;
     font-size: 16px;
     font-weight: bold;
-    color: #333;
+    color: #0ff;
 }
 #current-player-name-display {
-    color: #007bff; /* Highlight player name */
+    color: #ff00ff; /* Highlight player name with neon */
 }
 
 
@@ -49,27 +50,31 @@ body {
     display: block;
     margin-bottom: 10px;
     font-size: 18px;
+    color: #0ff;
 }
 #name-prompt-stage input[type="text"] {
     padding: 8px;
     font-size: 16px;
     margin-bottom: 15px;
     width: 200px;
-    border: 1px solid #ccc;
+    border: 1px solid #0ff;
     border-radius: 4px;
+    background: #000;
+    color: #fff;
 }
 #name-prompt-stage button, #start-game-btn { /* Included start-game-btn for consistency */
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #28a745; /* Green */
-    color: white;
+    background: linear-gradient(45deg, #ff00cc, #3333ff);
+    color: #fff;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 0 10px #ff00cc;
+    transition: background 0.3s ease;
 }
 #name-prompt-stage button:hover, #start-game-btn:hover {
-    background-color: #218838;
+    background: linear-gradient(45deg, #ff66ff, #6666ff);
 }
 
 
@@ -83,7 +88,7 @@ body {
 .dice {
     width: 60px;
     height: 60px;
-    border: 2px solid #333;
+    border: 2px solid #0ff;
     border-radius: 5px;
     display: flex;
     justify-content: center;
@@ -91,7 +96,9 @@ body {
     font-size: 24px;
     font-weight: bold;
     margin: 0 10px;
-    background-color: #ffecb3;
+    background-color: #000;
+    color: #0ff;
+    box-shadow: 0 0 10px #0ff;
     transition: transform 0.1s ease-out; /* For animation */
 }
 
@@ -113,24 +120,25 @@ body {
     padding: 12px 25px; /* Slightly larger padding */
     font-size: 18px;    /* Slightly larger font */
     cursor: pointer;
-    background: linear-gradient(to bottom, #4CAF50, #2e7d32);
-    color: white;
+    background: linear-gradient(45deg, #ff00cc, #3333ff);
+    color: #fff;
     border: none;
     border-radius: 5px;
     margin-top: 15px;
+    box-shadow: 0 0 10px #ff00cc;
     transition: background 0.3s ease;
 }
 #quit-game-btn {
-    background: linear-gradient(to bottom, #f44336, #c62828);
+    background: linear-gradient(45deg, #ff0066, #ff0000);
     margin-left: 10px; /* Space it from play again if they are in the same container */
 }
 
 
 #roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover {
-    background: linear-gradient(to bottom, #66bb6a, #388e3c);
+    background: linear-gradient(45deg, #ff66ff, #6666ff);
 }
 #quit-game-btn:hover {
-    background: linear-gradient(to bottom, #e53935, #b71c1c);
+    background: linear-gradient(45deg, #ff3366, #ff4444);
 }
 
 
@@ -152,17 +160,19 @@ body {
 }
 
 #dice-sum-table th, #dice-sum-table td {
-    border: 1px solid #ddd;
+    border: 1px solid #0ff;
     padding: 8px 12px;
     text-align: center;
+    color: #0ff;
 }
 
 #dice-sum-table th {
-    background-color: #ffe082;
+    background-color: rgba(0, 255, 255, 0.1);
 }
 
 #dice-sum-table tr.highlighted td {
-    background-color: #ffab40; /* Orange highlight */
+    background-color: #ff00cc; /* Neon highlight */
+    color: #fff;
     font-weight: bold;
 }
 
@@ -173,9 +183,10 @@ body {
 }
 
 #plinkoCanvas {
-    border: 1px solid #ccc;
-    background-color: white; /* Ensure canvas background is white for drawn grid */
+    border: 1px solid #0ff;
+    background-color: #000; /* Dark canvas for neon drawings */
     margin-top: 10px; /* Space above canvas */
+    box-shadow: 0 0 10px #0ff;
 }
 
 #drop-ball-btn {
@@ -205,41 +216,45 @@ body {
 }
 
 .overlay-content {
-    background-color: white;
+    background-color: #111;
     padding: 20px 30px; /* Adjusted padding */
     border-radius: 8px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 20px #ff00cc;
     max-width: 450px; /* Max width for overlay content */
     width: 90%;      /* Responsive width */
+    color: #fff;
 }
 
 .overlay-content h2 {
     margin-top: 0;
-    margin-bottom: 10px; 
-    color: #333;
+    margin-bottom: 10px;
+    color: #ff00cc;
 }
 .overlay-content p {
-    margin-bottom: 10px; 
+    margin-bottom: 10px;
     font-size: 16px; /* Adjusted font size */
+    color: #0ff;
 }
 
 #high-score-display {
     margin-top: 15px;
     margin-bottom: 15px;
     padding: 10px;
-    border: 1px dashed #ccc;
+    border: 1px dashed #0ff;
     border-radius: 4px;
-    background-color: #e1f5fe;
+    background-color: rgba(0, 255, 255, 0.1);
     max-height: 180px; /* Limit height for scores */
     overflow-y: auto;
     text-align: left;
+    color: #0ff;
 }
 #high-score-display h3 {
     margin-top: 0;
     margin-bottom: 8px;
     text-align: center;
     font-size: 18px;
+    color: #ff00cc;
 }
 #high-score-list {
     list-style-position: inside; /* Numbers inside the list item box */
@@ -249,7 +264,8 @@ body {
 #high-score-list li {
     padding: 4px 0; /* Vertical padding */
     font-size: 14px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #0ff;
+    color: #fff;
 }
 #high-score-list li:last-child {
     border-bottom: none;
