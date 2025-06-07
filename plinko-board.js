@@ -258,15 +258,11 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
     for (let i = 0; i <= PLINKO_CONFIG.BOARD_COLS; i += 2) {
         if (i > 0 && i < PLINKO_CONFIG.BOARD_COLS) {
             ctx.beginPath();
-            ctx.moveTo(i * PLINKO_CONFIG.BOX_SIZE, prizeSlotTopYPixel);
+            ctx.moveTo(i * PLINKO_CONFIG.BOX_SIZE, 0);
             ctx.lineTo(i * PLINKO_CONFIG.BOX_SIZE, canvas.height);
             ctx.stroke();
         }
     }
-    ctx.beginPath();
-    ctx.moveTo(0, prizeSlotTopYPixel);
-    ctx.lineTo(canvas.width, prizeSlotTopYPixel);
-    ctx.stroke();
 
     const prizeValues = ["+20$", "+9$", "+3$", "+1$", "+0$", "+2$", "+0$", "+1$", "+3$", "+9$", "+20$"];
     ctx.fillStyle = PLINKO_CONFIG.TEXT_COLOR;
