@@ -182,25 +182,28 @@ document.addEventListener('DOMContentLoaded', () => {
         displayTopScores(currentTopScores);
 
         // --- MODIFICATION START ---
-        // Update prize message text
+        // Update prize message text and Play Again button behaviour
         if (isOutOfMoneyForNextRound) {
             prizeMessageEl.textContent = "Out of Money for Next Round!";
+            if (playAgainBtn) {
+                playAgainBtn.textContent = "End Game";
+                playAgainBtn.disabled = false;
+            }
         } else {
             if (roundPrizeAmount > 0) {
                 prizeMessageEl.textContent = `Game Over! You Won $${roundPrizeAmount}`;
             } else if (roundPrizeAmount < 0) {
                 prizeMessageEl.textContent = `Game Over! You Lost $${Math.abs(roundPrizeAmount)}`;
-            } else { // prizeAmount is 0 (e.g., from "Lost!" or a $0 slot)
-                prizeMessageEl.textContent = `Game Over! You Won $0`; // Or "You Broke Even!" or "No Prize This Round!"
+            } else {
+                prizeMessageEl.textContent = `Game Over! You Won $0`;
+            }
+            if (playAgainBtn) {
+                playAgainBtn.textContent = "Play Next Round";
+                playAgainBtn.disabled = false;
             }
         }
         // --- MODIFICATION END ---
         finalMoneyMessageEl.textContent = `${currentPlayerName}, your current total is $${playerMoney}.`;
-
-        if (playAgainBtn) playAgainBtn.disabled = isOutOfMoneyForNextRound && playerMoney < rollCost; // Disable if out of money for next round, AND truly can't afford it.
-                                                                                                 // The 'isOutOfMoneyForNextRound' part of the condition for disabling
-                                                                                                 // might be redundant if we handle the quit logic in playAgain listener
-
         gameOverOverlayEl.classList.remove('hidden');
         updatePlayerInfoDisplay();
         console.log("showRoundOverScreen finished. isGameActive:", isGameActive, "isOverlayVisible:", isOverlayVisible);
