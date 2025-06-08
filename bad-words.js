@@ -18,6 +18,8 @@ const BAD_WORDS = [
     "Po0PooPooHead",
     "poo",
     "poo poo",
+    "Niger",
+    "niger",
   "2 girls 1 cup",
   "2g1c",
   "4r5e",
