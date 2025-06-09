@@ -190,7 +190,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const currentTopScores = getTopScores();
-        displayTopScores(currentTopScores);
+        // --- MODIFICATION START ---
+        // Show what the leaderboard would look like if the player's session
+        // high score qualifies for a spot, without actually saving it yet.
+        let previewScores = [...currentTopScores];
+        const qualifiesForBoard =
+            previewScores.length < maxTopScores ||
+            sessionMaxMoney > previewScores[previewScores.length - 1].score;
+        if (qualifiesForBoard) {
+            previewScores.push({ name: currentPlayerName, score: sessionMaxMoney });
+            previewScores.sort((a, b) => b.score - a.score);
+            previewScores = previewScores.slice(0, maxTopScores);
+        }
+        displayTopScores(previewScores);
+        // --- MODIFICATION END ---
 
         // --- MODIFICATION START ---
         // Update prize message text and Play Again button behaviour
