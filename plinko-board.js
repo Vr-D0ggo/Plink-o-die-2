@@ -162,6 +162,29 @@ function drawRightAngleTriangle(
     }
 }
 
+function drawRectPeg(xInBoxes, yInBoxes, widthInBoxes, heightInBoxes) {
+    if (!ctx) return;
+    const pixelX = xInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelY = yInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelWidth = widthInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelHeight = heightInBoxes * PLINKO_CONFIG.BOX_SIZE;
+
+    ctx.fillStyle = PLINKO_CONFIG.PEG_COLOR_FILL;
+    ctx.fillRect(pixelX, pixelY, pixelWidth, pixelHeight);
+    ctx.strokeStyle = PLINKO_CONFIG.PEG_COLOR_STROKE;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pixelX, pixelY, pixelWidth, pixelHeight);
+
+    pegs.push({
+        type: 'rect',
+        x: pixelX,
+        y: pixelY,
+        width: pixelWidth,
+        height: pixelHeight,
+        center: { x: pixelX + pixelWidth / 2, y: pixelY + pixelHeight / 2 }
+    });
+}
+
 
 function drawTopSlotLabels() {
     if (!ctx) return;
@@ -252,7 +275,7 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
 
     ctx.strokeStyle = PLINKO_CONFIG.SLOT_LINE_COLOR;
     ctx.lineWidth = 2;
-    const prizeSlotTopYBox = lowestPegBaseYInBoxes + 0.5; 
+    const prizeSlotTopYBox = lowestPegBaseYInBoxes + 0.5;
     const prizeSlotTopYPixel = prizeSlotTopYBox * PLINKO_CONFIG.BOX_SIZE;
 
     for (let i = 0; i <= PLINKO_CONFIG.BOARD_COLS; i += 2) {
@@ -261,6 +284,10 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
             ctx.moveTo(i * PLINKO_CONFIG.BOX_SIZE, prizeSlotTopYPixel);
             ctx.lineTo(i * PLINKO_CONFIG.BOX_SIZE, canvas.height);
             ctx.stroke();
+
+            const capWidth = 0.5;
+            const capHeight = 0.25;
+            drawRectPeg(i - capWidth / 2, prizeSlotTopYBox - capHeight, capWidth, capHeight);
         }
     }
     ctx.beginPath();
