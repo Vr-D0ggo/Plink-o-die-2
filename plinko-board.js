@@ -185,6 +185,23 @@ function drawRectPeg(xInBoxes, yInBoxes, widthInBoxes, heightInBoxes) {
     });
 }
 
+function addRectPeg(xInBoxes, yInBoxes, widthInBoxes, heightInBoxes) {
+    if (!ctx) return;
+    const pixelX = xInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelY = yInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelWidth = widthInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelHeight = heightInBoxes * PLINKO_CONFIG.BOX_SIZE;
+
+    pegs.push({
+        type: 'rect',
+        x: pixelX,
+        y: pixelY,
+        width: pixelWidth,
+        height: pixelHeight,
+        center: { x: pixelX + pixelWidth / 2, y: pixelY + pixelHeight / 2 }
+    });
+}
+
 
 function drawTopSlotLabels() {
     if (!ctx) return;
@@ -285,9 +302,13 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
             ctx.lineTo(i * PLINKO_CONFIG.BOX_SIZE, canvas.height);
             ctx.stroke();
 
-            const capWidth = 0.5;
-            const capHeight = 0.25;
-            drawRectPeg(i - capWidth / 2, prizeSlotTopYBox - capHeight, capWidth, capHeight);
+            const pegWidth = 0.2;
+            addRectPeg(
+                i - pegWidth / 2,
+                prizeSlotTopYBox,
+                pegWidth,
+                PLINKO_CONFIG.BOARD_ROWS - prizeSlotTopYBox
+            );
         }
     }
     ctx.beginPath();
