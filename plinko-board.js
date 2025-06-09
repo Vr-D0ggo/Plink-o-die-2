@@ -303,12 +303,24 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
             ctx.stroke();
 
             const pegWidth = 0.2;
+            // Base collision peg for the visible divider section
             addRectPeg(
                 i - pegWidth / 2,
                 prizeSlotTopYBox,
                 pegWidth,
                 PLINKO_CONFIG.BOARD_ROWS - prizeSlotTopYBox
             );
+
+            // If this divider borders an end slot, extend the collision area
+            // upward so the entire divider is solid
+            if (i === 2 || i === PLINKO_CONFIG.BOARD_COLS - 2) {
+                addRectPeg(
+                    i - pegWidth / 2,
+                    0,
+                    pegWidth,
+                    prizeSlotTopYBox
+                );
+            }
         }
     }
     ctx.beginPath();
