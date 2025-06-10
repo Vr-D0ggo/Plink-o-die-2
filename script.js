@@ -7,10 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const namePromptStageEl = document.getElementById('name-prompt-stage');
     const playerNameInputEl = document.getElementById('player-name-input');
     const startGameBtn = document.getElementById('start-game-btn');
+    const instructionsBtn = document.getElementById('instructions-btn');
 
     const diceStageEl = document.getElementById('dice-stage');
     const plinkoStageEl = document.getElementById('plinko-stage');
     const gameOverOverlayEl = document.getElementById('game-over-overlay');
+    const instructionsOverlayEl = document.getElementById('instructions-overlay');
+    const closeInstructionsBtn = document.getElementById('close-instructions-btn');
 
     const dice1El = document.getElementById('dice1');
     const dice2El = document.getElementById('dice2');
@@ -309,6 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function showInstructionsOverlay() {
+        if (instructionsOverlayEl) instructionsOverlayEl.classList.remove('hidden');
+    }
+
+    function hideInstructionsOverlay() {
+        if (instructionsOverlayEl) instructionsOverlayEl.classList.add('hidden');
+    }
+
     function transitionToPlinko() {
         if (!isGameActive || isOverlayVisible) {
             console.warn("Transition to Plinko attempt while game not active or overlay visible.");
@@ -373,6 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startGameBtn) startGameBtn.addEventListener('click', startGameSession);
     if (rollDiceBtn) rollDiceBtn.addEventListener('click', rollDice);
     if (dropBallBtn) dropBallBtn.addEventListener('click', onDropBallClicked);
+    if (instructionsBtn) instructionsBtn.addEventListener('click', showInstructionsOverlay);
+    if (closeInstructionsBtn) closeInstructionsBtn.addEventListener('click', hideInstructionsOverlay);
 
     if (playAgainBtn) {
         playAgainBtn.addEventListener('click', () => {
