@@ -424,7 +424,7 @@ function drawFullPlinkoBoard() {
 
 // Draw the Plinko board on a specific canvas scaled by a factor without
 // disturbing the main game state. Used for the mini demo.
-function drawScaledPlinkoBoardOnCanvas(targetCanvas, scale) {
+function drawScaledPlinkoBoardOnCanvas(targetCanvas, scale, returnData = false) {
     if (!targetCanvas || !targetCanvas.getContext) return;
 
     const savedCanvas = canvas;
@@ -448,12 +448,20 @@ function drawScaledPlinkoBoardOnCanvas(targetCanvas, scale) {
     const lowestPegY = definePegsAndDraw();
     defineBottomSlotsAndDraw(lowestPegY);
 
+    const scaledPegs = pegs.map(p => ({ ...p }));
+    const scaledSlots = bottomPrizeSlots.map(s => ({ ...s }));
+
     // Restore originals so the main game is unaffected
     PLINKO_CONFIG.BOX_SIZE = savedBox;
     canvas = savedCanvas;
     ctx = savedCtx;
     pegs = savedPegs;
+
     bottomPrizeSlots = savedSlots;
+
+    if (returnData) {
+        return { pegs: scaledPegs, bottomPrizeSlots: scaledSlots };
+    }
 }
 
 // Expose helper for other scripts
