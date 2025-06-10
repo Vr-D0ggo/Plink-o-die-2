@@ -18,6 +18,7 @@
             <label for="player-name-input">Enter your username:</label>
             <input type="text" id="player-name-input" maxlength="15">
             <button id="start-game-btn">Start Game</button>
+            <button id="instructions-btn" type="button">How to Play</button>
         </div>
 
 
@@ -62,12 +63,22 @@
                 <p id="final-money-message"></p>
                 <div id="high-score-display">
                     <h3>Top Scores:</h3>
-                    <ol id="high-score-list"></ol> 
+                    <ol id="high-score-list"></ol>
                 </div>
                 <div class="game-over-buttons">
-                    <button id="play-again-btn">Play Next Round</button> 
-                    <button id="quit-game-btn">Quit Game & Save</button> 
+                    <button id="play-again-btn">Play Next Round</button>
+                    <button id="quit-game-btn">Quit Game & Save</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Instructions Overlay -->
+        <div id="instructions-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <h2>Game Instructions</h2>
+                <p>Roll the dice to choose a slot and drop the ball. Win or lose cash based on where the ball lands. Try to set a high score!</p>
+                <p><strong>Plink-o-Die 2</strong> is fast, fun and free. Share the game with friends and check out our other titles!</p>
+                <button id="close-instructions-btn">Close</button>
             </div>
         </div>
     </div>

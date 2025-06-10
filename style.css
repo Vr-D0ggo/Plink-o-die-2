@@ -117,7 +117,7 @@ body {
 }
 
 
-#roll-dice-btn, #drop-ball-btn, #play-again-btn, #quit-game-btn {
+#roll-dice-btn, #drop-ball-btn, #play-again-btn, #quit-game-btn, #close-instructions-btn {
     padding: 12px 25px; /* Slightly larger padding */
     font-size: 18px;    /* Slightly larger font */
     cursor: pointer;
@@ -135,7 +135,7 @@ body {
 }
 
 
-#roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover {
+#roll-dice-btn:hover, #drop-ball-btn:hover, #play-again-btn:hover, #close-instructions-btn:hover {
     opacity: 0.8;
 }
 #quit-game-btn:hover {
