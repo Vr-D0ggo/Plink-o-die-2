@@ -376,7 +376,7 @@ function defineBottomSlotsAndDraw(lowestPegBaseYInBoxes) {
     ctx.stroke();
     ctx.strokeStyle = PLINKO_CONFIG.SLOT_LINE_COLOR;
 
-    const prizeValues = ["+21$", "+9$", "+3$", "+1$", "+0$", "+2$", "+0$", "+1$", "+3$", "+9$", "+21$"];
+    const prizeValues = ["$21", "$9", "$3", "$1", "$0", "$2", "$0", "$1", "$3", "$9", "$21"];
     ctx.fillStyle = PLINKO_CONFIG.TEXT_COLOR;
     ctx.font = PLINKO_CONFIG.TEXT_FONT;
     ctx.textAlign = 'center';
