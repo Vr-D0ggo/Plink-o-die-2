@@ -90,6 +90,45 @@ function drawTriangle(centerXInBoxes, baseYInBoxes, widthInBoxes, heightInBoxes,
     }
 }
 
+function drawInvertedTriangle(apexXInBoxes, apexYInBoxes, widthInBoxes, heightInBoxes, isPeg = true) {
+    if (!ctx) return;
+    const pixelApexX = apexXInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelApexY = apexYInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelWidth = widthInBoxes * PLINKO_CONFIG.BOX_SIZE;
+    const pixelHeight = heightInBoxes * PLINKO_CONFIG.BOX_SIZE;
+
+    const bottomLeft = { x: pixelApexX - pixelWidth / 2, y: pixelApexY + pixelHeight };
+    const bottomRight = { x: pixelApexX + pixelWidth / 2, y: pixelApexY + pixelHeight };
+
+    ctx.beginPath();
+    ctx.moveTo(pixelApexX, pixelApexY);
+    ctx.lineTo(bottomLeft.x, bottomLeft.y);
+    ctx.lineTo(bottomRight.x, bottomRight.y);
+    ctx.closePath();
+
+    ctx.fillStyle = PLINKO_CONFIG.PEG_COLOR_FILL;
+    ctx.fill();
+    ctx.strokeStyle = PLINKO_CONFIG.PEG_COLOR_STROKE;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (isPeg) {
+        const minX = Math.min(pixelApexX, bottomLeft.x, bottomRight.x);
+        const minY = Math.min(pixelApexY, bottomLeft.y, bottomRight.y);
+        const maxX = Math.max(pixelApexX, bottomLeft.x, bottomRight.x);
+        const maxY = Math.max(pixelApexY, bottomLeft.y, bottomRight.y);
+        pegs.push({
+            type: 'triangle',
+            vertices: [{x: pixelApexX, y: pixelApexY}, bottomLeft, bottomRight],
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY,
+            center: { x: (minX + maxX) / 2, y: (minY + maxY) / 2 }
+        });
+    }
+}
+
 function drawRightAngleTriangle(
     verticalSideXInBoxes,
     horizontalLegYInBoxes, 
@@ -273,15 +312,22 @@ function definePegsAndDraw() {
     // Adjust X-start based on the new scaled width
     const rightRATriangleStartX = PLINKO_CONFIG.BOARD_COLS - scaledSidePegWidth; 
     drawRightAngleTriangle(
-        rightRATriangleStartX, 
-        upsideDownRAPegTopY,   
+        rightRATriangleStartX,
+        upsideDownRAPegTopY,
         scaledSidePegWidth,   // Use the new scaled width
         scaledSidePegHeight,  // Use the new scaled height
-        'leftFacingApex',  
-        true, 
-        true  
+        'leftFacingApex',
+        true,
+        true
     );
-    
+
+    // Peg Row 4 - inverted triangles aligned with slot dividers
+    const tipYRow4 = baseYRow3_standard + 0.5;
+    const pegXCentersRow4 = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
+    pegXCentersRow4.forEach(centerX => {
+        drawInvertedTriangle(centerX, tipYRow4, PLINKO_CONFIG.PEG_WIDTH_BOXES, PLINKO_CONFIG.PEG_HEIGHT_BOXES);
+    });
+
     return baseYRow3_standard; // Bottom alignment is still with standard pegs
 }
 
