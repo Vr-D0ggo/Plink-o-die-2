@@ -8,6 +8,7 @@
     let rollIntervalId = null;
     let pauseTimeoutId = null;
     let miniCanvas;
+    let ballAnimFrame = null;
     const SCALE = 0.4; // scale used for the mini demo board
 
     function init() {
@@ -59,6 +60,58 @@
         ctx.stroke();
     }
 
+    function animateBallDrop(slotIndex, onComplete) {
+        if (!miniCanvas) return;
+        const ctx = miniCanvas.getContext('2d');
+        if (!ctx) return;
+
+        const boxSize = PLINKO_CONFIG.BOX_SIZE * SCALE;
+        const ballX = (slotIndex * 2 + 1) * boxSize;
+        const ballRadius = PLINKO_CONFIG.BALL_RADIUS_BOXES * boxSize;
+        let ballY = ballRadius + 2;
+        const endY = miniCanvas.height - ballRadius - 2;
+
+        function step() {
+            if (!miniCanvas) return;
+            if (typeof drawScaledPlinkoBoardOnCanvas === 'function') {
+                drawScaledPlinkoBoardOnCanvas(miniCanvas, SCALE);
+            }
+
+            const baseYRow1 = 1 + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
+            const baseYRow2 = baseYRow1 + 0.5 + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
+            const baseYRow3 = baseYRow2 + 0.5 + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
+            const prizeTopBox = baseYRow3 + 0.5;
+            const slotY = prizeTopBox * boxSize;
+            const slotX = slotIndex * 2 * boxSize;
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+            ctx.fillRect(slotX, slotY, 2 * boxSize, miniCanvas.height - slotY);
+
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = PLINKO_CONFIG.BALL_COLOR;
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            if (ballY < endY) {
+                ballY += 3;
+                ballAnimFrame = requestAnimationFrame(step);
+            } else {
+                ballAnimFrame = null;
+                if (typeof onComplete === 'function') {
+                    onComplete();
+                }
+            }
+        }
+
+        if (ballAnimFrame) {
+            cancelAnimationFrame(ballAnimFrame);
+            ballAnimFrame = null;
+        }
+        step();
+    }
+
     function rollOnce() {
         if (!dice1El || !dice2El) return;
         let ticks = 0;
@@ -76,8 +129,9 @@
                 dice2El.classList.remove('rolling');
                 showRandomValues();
                 const slot = Math.floor(Math.random() * 11);
-                highlightSlotAndBall(slot);
-                pauseTimeoutId = setTimeout(rollOnce, 2000); // pause before next roll
+                animateBallDrop(slot, () => {
+                    pauseTimeoutId = setTimeout(rollOnce, 1000);
+                });
             }
         }, 100);
     }
@@ -100,6 +154,10 @@
         if (pauseTimeoutId) {
             clearTimeout(pauseTimeoutId);
             pauseTimeoutId = null;
+        }
+        if (ballAnimFrame) {
+            cancelAnimationFrame(ballAnimFrame);
+            ballAnimFrame = null;
         }
     }
 
