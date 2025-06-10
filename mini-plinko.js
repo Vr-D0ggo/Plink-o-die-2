@@ -8,13 +8,14 @@
     let rollIntervalId = null;
     let pauseTimeoutId = null;
     let miniCanvas;
+    const SCALE = 0.4; // scale used for the mini demo board
 
     function init() {
         dice1El = document.getElementById('instruction-dice1');
         dice2El = document.getElementById('instruction-dice2');
         miniCanvas = document.getElementById('mini-plinko-canvas');
         if (miniCanvas && typeof drawScaledPlinkoBoardOnCanvas === 'function') {
-            drawScaledPlinkoBoardOnCanvas(miniCanvas, 0.4);
+            drawScaledPlinkoBoardOnCanvas(miniCanvas, SCALE);
         }
     }
 
@@ -22,6 +23,40 @@
         if (!dice1El || !dice2El) return;
         dice1El.textContent = Math.floor(Math.random() * 6) + 1;
         dice2El.textContent = Math.floor(Math.random() * 6) + 1;
+    }
+
+    function highlightSlotAndBall(slotIndex) {
+        if (!miniCanvas) return;
+        const ctx = miniCanvas.getContext('2d');
+        if (!ctx) return;
+
+        // redraw board first
+        if (typeof drawScaledPlinkoBoardOnCanvas === 'function') {
+            drawScaledPlinkoBoardOnCanvas(miniCanvas, SCALE);
+        }
+
+        const boxSize = PLINKO_CONFIG.BOX_SIZE * SCALE;
+
+        const baseYRow1 = 1 + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
+        const baseYRow2 = baseYRow1 + 0.5 + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
+        const baseYRow3 = baseYRow2 + 0.5 + PLINKO_CONFIG.PEG_HEIGHT_BOXES;
+        const prizeTopBox = baseYRow3 + 0.5;
+        const slotY = prizeTopBox * boxSize;
+
+        const slotX = slotIndex * 2 * boxSize;
+        ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+        ctx.fillRect(slotX, slotY, 2 * boxSize, miniCanvas.height - slotY);
+
+        const ballX = (slotIndex * 2 + 1) * boxSize;
+        const ballRadius = PLINKO_CONFIG.BALL_RADIUS_BOXES * boxSize;
+        const ballY = miniCanvas.height - ballRadius - 2;
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = PLINKO_CONFIG.BALL_COLOR;
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
     }
 
     function rollOnce() {
@@ -40,6 +75,8 @@
                 dice1El.classList.remove('rolling');
                 dice2El.classList.remove('rolling');
                 showRandomValues();
+                const slot = Math.floor(Math.random() * 11);
+                highlightSlotAndBall(slot);
                 pauseTimeoutId = setTimeout(rollOnce, 2000); // pause before next roll
             }
         }, 100);
@@ -50,8 +87,9 @@
         stop();
         rollOnce();
         if (miniCanvas && typeof drawScaledPlinkoBoardOnCanvas === 'function') {
-            drawScaledPlinkoBoardOnCanvas(miniCanvas, 0.4);
+            drawScaledPlinkoBoardOnCanvas(miniCanvas, SCALE);
         }
+        highlightSlotAndBall(Math.floor(Math.random() * 11));
     }
 
     function stop() {
