@@ -422,6 +422,43 @@ function drawFullPlinkoBoard() {
     defineBottomSlotsAndDraw(lowestPegY);
 }
 
+// Draw the Plinko board on a specific canvas scaled by a factor without
+// disturbing the main game state. Used for the mini demo.
+function drawScaledPlinkoBoardOnCanvas(targetCanvas, scale) {
+    if (!targetCanvas || !targetCanvas.getContext) return;
+
+    const savedCanvas = canvas;
+    const savedCtx = ctx;
+    const savedBox = PLINKO_CONFIG.BOX_SIZE;
+    const savedPegs = pegs;
+    const savedSlots = bottomPrizeSlots;
+
+    canvas = targetCanvas;
+    ctx = targetCanvas.getContext('2d');
+    PLINKO_CONFIG.BOX_SIZE = savedBox * scale;
+    canvas.width = PLINKO_CONFIG.BOARD_COLS * PLINKO_CONFIG.BOX_SIZE;
+    canvas.height = PLINKO_CONFIG.BOARD_ROWS * PLINKO_CONFIG.BOX_SIZE;
+
+    pegs = [];
+    bottomPrizeSlots = [];
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid();
+    drawTopSlotLabels();
+    const lowestPegY = definePegsAndDraw();
+    defineBottomSlotsAndDraw(lowestPegY);
+
+    // Restore originals so the main game is unaffected
+    PLINKO_CONFIG.BOX_SIZE = savedBox;
+    canvas = savedCanvas;
+    ctx = savedCtx;
+    pegs = savedPegs;
+    bottomPrizeSlots = savedSlots;
+}
+
+// Expose helper for other scripts
+window.drawScaledPlinkoBoardOnCanvas = drawScaledPlinkoBoardOnCanvas;
+
 // --- Example Usage (ensure you have an HTML file with <canvas id="plinkoCanvas"></canvas>) ---
 //
 // window.onload = () => {

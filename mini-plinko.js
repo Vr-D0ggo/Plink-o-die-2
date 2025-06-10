@@ -7,10 +7,15 @@
     let dice1El, dice2El;
     let rollIntervalId = null;
     let pauseTimeoutId = null;
+    let miniCanvas;
 
     function init() {
         dice1El = document.getElementById('instruction-dice1');
         dice2El = document.getElementById('instruction-dice2');
+        miniCanvas = document.getElementById('mini-plinko-canvas');
+        if (miniCanvas && typeof drawScaledPlinkoBoardOnCanvas === 'function') {
+            drawScaledPlinkoBoardOnCanvas(miniCanvas, 0.4);
+        }
     }
 
     function showRandomValues() {
@@ -41,9 +46,12 @@
     }
 
     function start() {
-        if (!dice1El || !dice2El) init();
+        if (!dice1El || !dice2El || !miniCanvas) init();
         stop();
         rollOnce();
+        if (miniCanvas && typeof drawScaledPlinkoBoardOnCanvas === 'function') {
+            drawScaledPlinkoBoardOnCanvas(miniCanvas, 0.4);
+        }
     }
 
     function stop() {
