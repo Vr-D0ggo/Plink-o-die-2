@@ -313,11 +313,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showInstructionsOverlay() {
-        if (instructionsOverlayEl) instructionsOverlayEl.classList.remove('hidden');
+        if (instructionsOverlayEl) {
+            instructionsOverlayEl.classList.remove('hidden');
+            if (typeof startMiniPlinkoDemo === 'function') startMiniPlinkoDemo();
+        }
     }
 
     function hideInstructionsOverlay() {
-        if (instructionsOverlayEl) instructionsOverlayEl.classList.add('hidden');
+        if (instructionsOverlayEl) {
+            instructionsOverlayEl.classList.add('hidden');
+            if (typeof stopMiniPlinkoDemo === 'function') stopMiniPlinkoDemo();
+        }
     }
 
     function transitionToPlinko() {
