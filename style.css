@@ -273,6 +273,11 @@ body {
     border-bottom: 1px solid #0ff;
     color: #0ff;
 }
+#high-score-list li.current-player-score {
+    color: #ff8800;
+    text-shadow: 0 0 8px #ff8800;
+    font-weight: bold;
+}
 #high-score-list li:last-child {
     border-bottom: none;
 }
