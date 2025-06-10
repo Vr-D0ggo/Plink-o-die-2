@@ -68,6 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
             scores.forEach(entry => {
                 const listItem = document.createElement('li');
                 listItem.textContent = `${entry.name}: $${entry.score}`;
+                if (entry.name === currentPlayerName) {
+                    listItem.classList.add('current-player-score');
+                }
                 highScoreListEl.appendChild(listItem);
             });
             highScoreDisplayEl.classList.remove('hidden');
